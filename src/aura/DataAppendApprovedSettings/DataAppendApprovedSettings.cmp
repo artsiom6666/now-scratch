@@ -1,0 +1,209 @@
+<aura:component controller="TouchCRAuraSettingsDAppendController" implements="force:appHostable,flexipage:availableForAllPageTypes" access="global" >
+    <aura:attribute name="settings" type="Object" default="{DALimit : 0,
+                                                           Excess : 0,
+                                                           Approver1 : {Id: '', Name: 'None'},
+                                                           Approver2 : {Id: '', Name: 'None'},
+                                                           Approver3 : {Id: '', Name: 'None'},
+                                                           }"/>
+
+    <aura:attribute name="users" type="User[]"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+    <aura:attribute name="edit" type="Boolean" default="false" />
+
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+    <aura:attribute name="textMessage" type="String"/>
+    <aura:attribute name="showErrorMessage" type="Boolean" default="false" />
+    <aura:attribute name="showSuccessMessage" type="Boolean" default="false" />
+    <aura:attribute name="showCancelMessage" type="Boolean" default="false" />
+
+
+    <aura:if isTrue="{!v.showSpinner}">
+        <div class="slds-spinner_container slds-show" aura:id="imgSpinner">
+            <div class="slds-spinner--brand slds-spinner slds-spinner--medium" role="alert" style="top: 200px; left: 50%;">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+
+    <div id="tab-scoped-1" class="slds-tabs--scoped__content slds-show" role="tabpanel" aria-labelledby="tab-scoped-1__item">
+        <div class="container slds-p-top--medium" style="padding-top: 0px !important;">
+            <div class="container" style="width: 450px; margin: auto; padding-top: 0px !important;">
+                <div class="one_three">
+                </div>
+
+                <form class="slds-form--stacked">
+                    <div class="" style="margin-top: 20px; width: 210px; display: inline-block;">
+                        <label class="slds-checkbox--toggle slds-grid" style="width: 200px;">
+                            <div style="width: 200px;">
+                                <aura:if isTrue="{!v.edit}">
+                                    <ui:inputNumber aura:id="DALimit" label="Limit records in 24 hours" class="field" value="{!v.settings.DALimit}"/>
+                                    <aura:set attribute="else">
+                                        <span style="width: 200px;">
+                                            <span class="slds-form-element__label slds-m-bottom--none">Limit records in 24 hours</span>
+                                            <ui:outputNumber value="{!v.settings.DALimit}"/>
+                                        </span>
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="" style="margin-top: 20px; padding-left: 20px; width: 210px; display: inline-block;">
+                        <label class="slds-checkbox--toggle slds-grid" style="width: 200px;">
+                            <div style="width: 200px;">
+                                <aura:if isTrue="{!v.edit}">
+                                    <span style="width: 200px;  padding-top: 10px; position: absolute;">
+                                            <span class="slds-form-element__label slds-m-bottom--none">Excess</span>
+                                            <ui:outputNumber aura:id="Excess" value="{!v.settings.Excess}"/>
+                                    </span>
+                                    <aura:set attribute="else">
+                                        <span style="width: 200px;">
+                                            <span class="slds-form-element__label slds-m-bottom--none">Excess</span>
+                                            <ui:outputNumber value="{!v.settings.Excess}"/>
+                                        </span>
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </label>
+                    </div>
+                    <div  class="field1" style="margin-top: 20px; width: 210px; display: inline-block;">
+                        <label class="slds-checkbox--toggle slds-grid" style="width: 200px;">
+                            <div style="width: 200px;">
+                                <aura:if isTrue="{!v.edit}">
+                                    <ui:inputSelect aura:id="Approver1" label="Approver #1" change="{!c.onSelectChange}" value="{!v.settings.Approver1.Id}">
+                                        <aura:iteration items="{!v.users}" var="user">
+                                            <ui:inputSelectOption text="{!user.Id}" label="{!(user.Name == 'None') ? user.Name : user.Name + ' (' + user.Email + ')'}" />
+                                        </aura:iteration>
+                                    </ui:inputSelect>
+                                    <aura:set attribute="else">
+                                        <span style="width: 200px;">
+                                            <span class="slds-form-element__label slds-m-bottom--none">Approver #1</span>
+                                        </span>
+                                        <ui:inputText disabled="true" class="outputText" value="{!v.settings.Approver1.Name}" />
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="" style="margin-top: 20px; padding-left: 20px; width: 210px; display: inline-block;">
+                        <label class="slds-checkbox--toggle slds-grid" style="width: 200px;">
+                            <div style="width: 200px;">
+                                <aura:if isTrue="{!v.edit}">
+                                    <ui:inputSelect aura:id="Approver2" label="Approver #2" change="{!c.onSelectChange}" value="{!v.settings.Approver2.Id}">
+                                        <aura:iteration items="{!v.users}" var="user">
+                                            <ui:inputSelectOption text="{!user.Id}" label="{!(user.Name == 'None') ? user.Name : user.Name + ' (' + user.Email + ')'}" />
+                                        </aura:iteration>
+                                    </ui:inputSelect>
+                                    <aura:set attribute="else">
+                                        <span style="width: 200px;">
+                                            <span class="slds-form-element__label slds-m-bottom--none">Approver #2</span>
+                                        </span>
+                                        <ui:inputText disabled="true" class="outputText" value="{!v.settings.Approver2.Name}" />
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </label>
+                    </div>
+                    <div  class="field1" style="margin-top: 20px; width: 210px; display: inline-block;">
+                        <label class="slds-checkbox--toggle slds-grid" style="width: 200px;">
+                            <div style="width: 200px;">
+                                <aura:if isTrue="{!v.edit}">
+                                    <ui:inputSelect aura:id="Approver3" label="Approver #3" change="{!c.onSelectChange}" value="{!v.settings.Approver3.Id}">
+                                        <aura:iteration items="{!v.users}" var="user">
+                                            <ui:inputSelectOption text="{!user.Id}" label="{!(user.Name == 'None') ? user.Name : user.Name + ' (' + user.Email + ')'}" />
+                                        </aura:iteration>
+                                    </ui:inputSelect>
+                                    <aura:set attribute="else">
+                                        <span style="width: 200px;">
+                                            <span class="slds-form-element__label slds-m-bottom--none">Approver #3</span>
+                                        </span>
+                                        <ui:inputText disabled="true" class="outputText" value="{!v.settings.Approver3.Name}" />
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </label>
+                    </div>
+                </form>
+
+                <!--BUTTON SECTION-->
+                <div style="clear: left; padding-top: 20px;" class="one_three">
+                    <div class="btnInvoice" >
+                        <aura:if isTrue="{!v.edit}">
+                            <ui:button aura:id="saveButton" class="button" label="Save" press="{!c.saveSettings}"/>
+                            <ui:button aura:id="cancelButton" class="button" label="Cancel" press="{!c.cancel}"/>
+                            <aura:set attribute="else">
+                                <ui:button aura:id="editButton" class="button" label="Edit" press="{!c.edit}"/>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--ERROR MESSAGE-->
+    <aura:if isTrue="{!v.showErrorMessage}">
+        <div class="slds-notify_container" style="top: 130px;">
+            <div class="slds-notify slds-notify--toast slds-theme--error" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+                    <lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-notify__content slds-grid">
+                    <lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+                    <div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small">{!v.textMessage}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+
+    <!--SUCCESS MESSAGE-->
+    <aura:if isTrue="{!v.showSuccessMessage}">
+        <div class="slds-notify_container" style="top: 130px;">
+            <div class="slds-notify slds-notify--toast slds-theme--success" role="alert">
+                <span class="slds-assistive-text">Success</span>
+                <button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+                    <lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-notify__content slds-grid">
+                    <lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+                    <div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small ">{!v.textMessage}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+
+    <!--CANCEL MESSAGE-->
+    <aura:if isTrue="{!v.showCancelMessage}">
+        <div aura:id="modal" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <button class="slds-button slds-modal__close slds-button--icon-inverse" onclick="{!c.closeCancelMsgNo}">
+                        <lightning:icon iconName="utility:close" size="medium" class="white-icon"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="header43" class="slds-text-heading--medium">Data Append Approved Settings </h2>
+                </div>
+                <div class="slds-modal__content slds-p-around--medium">
+                    <div>
+                        <p>Are you sure you want to discard changes?</p>
+                    </div>
+                </div>
+                <div class="slds-modal__footer">
+                    <button class="slds-button slds-button--neutral" onclick="{!c.closeCancelMsgNo}">No</button>
+                    <button class="slds-button slds-button--brand" onclick="{!c.closeCancelMsgYes}">Yes</button>
+                </div>
+            </div>
+        </div>
+        <div aura:id="backdropModal" class="slds-backdrop slds-fade-in-open"></div>
+    </aura:if>
+</aura:component>

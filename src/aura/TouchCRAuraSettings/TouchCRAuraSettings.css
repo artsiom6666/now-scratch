@@ -1,0 +1,20 @@
+.THIS .AuraSettings > div:focus {
+     outline-width: 0 !important;
+}
+
+.THIS .SettingTab {
+     background-color: rgba(132, 198, 255, 0.2);
+     padding: 6px;
+     text-align: center;
+     font-size: 18px;
+}
+
+.THIS .CheckboxSettingTabs  {
+     margin-top: 10px;
+     border: 1px;
+}
+
+.THIS .InlineSettingTabs  {
+     display: inline-block;
+     width: 33%;
+}

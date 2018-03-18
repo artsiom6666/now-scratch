@@ -1,0 +1,151 @@
+<apex:page controller="VFFrictionlessController" sidebar="false"  action="{!getOfferInfo}" showHeader="false" title="FrictionLess Upsell">      
+    <apex:pageBlock title="FrictionLess Upsell">
+        <style>  
+            body{
+                background-color:#F8F8F8;
+            }     
+            .empty{       
+                display:none;       
+            }       
+            .dataCol{
+                width:25%!important;
+            }
+            .btnDisabled .btnCancel .menuButton .menuButtonButton{
+                padding: 4px 28px!important;
+            } 
+            .img{
+                margin-left:20%;
+                width:30%;
+            } 
+            #main{margin-top: 65px;}
+            #sub-main{
+                margin-right: 10%;
+                display: inline-block;
+                width: 38%;
+                margin-top: 107px;
+                float: right;
+            }       
+            body .bPageBlock{
+                border-bottom:1px solid #F8F8F8!important;
+            } 
+            .get-but{
+                margin-left: 42%!important;
+            }
+            @media (min-width:1024px) and (max-width: 1200px) {
+                .img{
+                    margin-left:20%;
+                    width:30%;
+                } 
+                #sub-main{
+                    margin-right: 10%;
+                    display: inline-block;
+                    width: 38%;
+                    margin-top: 107px;
+                    float: right; 
+                }  
+            }
+            
+            @media (min-width:768px) and (max-width: 1024px) {
+                .img{
+                    margin-left:10%;
+                    width:40%;
+                } 
+                #sub-main{
+                    margin-right: 10%;
+                    display: inline-block;
+                    width: 35%;
+                    margin-top: 107px;
+                    float: right;
+                }  
+            } 
+            
+            @media(max-width:767px) {
+                .img{
+                    margin-left:5%; 
+                    margin-right:5%; 
+                    width:90%;
+                } 
+                #sub-main{
+                    margin-right: 0%;
+                    display: inline-block;
+                    width: 100%;
+                    margin-top: 107px;
+                    float: left;
+                }  
+            }                        
+        </style> 
+        
+            <apex:pageMessages ></apex:pageMessages>
+        <div style="{!IF((pageResponse =='true'),'display:block','display:none')}" >
+        </div>            
+        
+        <div style="{!IF((pageResponse ==''),'display:block','display:none')}">  
+                <apex:form >
+                    <div id="main">
+                        <apex:image styleClass="img" url="{!JSENCODE(offerInfo.Frictionless_Banner_Image__c)}" ></apex:image>
+                         <div id="sub-main"> 
+                             <apex:pageBlockSection >
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >Product Name: </apex:outputLabel>
+                                   <apex:outputLabel >{!offerInfo.Name}</apex:outputLabel>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                            <apex:pageBlockSection >
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >Product Price: </apex:outputLabel>
+                                   <apex:outputLabel >$&nbsp;{!offerInfo.Offer_Price__c}</apex:outputLabel>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                                                
+                             <apex:pageBlockSection >
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >Subscription For: </apex:outputLabel>
+                                   <apex:outputLabel >{!offerInfo.SubscriptionBillingDays__c}&nbsp;Days</apex:outputLabel>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                            
+                            
+                            <apex:pageBlockSection >
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >User Name: </apex:outputLabel>
+                                    <apex:inputText value="{!userName}" required="true"  />
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                            
+                            <apex:pageBlockSection >
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel >Password: </apex:outputLabel>
+                                    <apex:inputSecret value="{!password}"  required="true"/>                    
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection> 
+                            <div style="display:none">                   
+                                <apex:pageBlockSection >
+                                                                    
+                                    <apex:inputhidden value="{!offerInfo.ProductTobeSold__r.Id}"/>                  
+                                    <apex:inputhidden value="{!offerInfo.Id}"/>                                                                                                       
+                                    <apex:inputhidden value="{!utm_source}"/>        
+                                    <apex:inputhidden value="{!utm_medium}"/>        
+                                    <apex:inputhidden value="{!utm_campaign}"/>        
+                                    <apex:inputhidden value="{!utm_content}"/>        
+                                    <apex:inputhidden value="{!utm_term}"/>        
+                                    <apex:inputhidden value="{!sales_funnel_name}"/>        
+                                    <apex:inputhidden value="{!landing_page_url}"/>        
+                                    <apex:inputhidden value="{!referral_domain_url}"/>
+                                    <apex:inputhidden value="{!offerId}" />
+                                    <apex:inputhidden value="{!productId}" />
+                                             
+                                </apex:pageBlockSection> 
+                            </div>  
+                            <apex:pageBlockSection >
+                                <apex:pageBlockSectionItem >    
+                                   
+                                        <apex:commandButton styleClass="get-but" action="{!getAuthenticated}" value="Get Offer" />                                
+                                </apex:pageBlockSectionItem>    
+                            </apex:pageBlockSection>  
+                        </div>  
+                    </div>
+                </apex:form>  
+        </div>  
+    </apex:pageBlock> 
+   
+</apex:page>

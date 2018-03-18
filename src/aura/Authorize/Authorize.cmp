@@ -1,0 +1,82 @@
+<aura:component implements="force:appHostable,force:hasRecordId,force:lightningQuickActionWithoutHeader" controller="AuthorizeController">
+
+	<aura:attribute name="amountToAuthorize" type="Decimal" />
+	<aura:attribute name="isAuthorize" type="Boolean" default="false" />
+	<aura:attribute name="isSuccessAuthorize" type="Boolean" default="false" />
+	<aura:attribute name="messageAuthorize" type="String" />
+	<aura:attribute name="transactionId" type="String" />
+
+	<aura:attribute name="cardNumber" type="Integer" />
+	<aura:attribute name="ccv" type="Integer" />
+	<aura:attribute name="isValidData" type="Boolean" default="false" />
+
+	<aura:attribute name="showSpinner" type="Boolean" default="false" />
+
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+
+	<div style="display: inline;">
+		<fieldset class="slds-box slds-theme--default slds-container--small" style="min-width: 100%; height: 490px;">
+			<!-- SPINNER-->
+			<aura:if isTrue="{!v.showSpinner}">
+				<div class="slds-spinner_container slds-show slds-is-relative" aura:id="imgSpinner" style="top: 17%; height: 550px; left: 0px; position: fixed;">
+					<div class="slds-spinner--brand slds-spinner slds-spinner--medium" role="alert" style="top: 50%; left: 50%;">
+						<span class="slds-assistive-text">Loading</span>
+						<div class="slds-spinner__dot-a"></div>
+						<div class="slds-spinner__dot-b"></div>
+					</div>
+				</div>
+			</aura:if>
+			
+			<legend id="editContactDetails" class="slds-text-heading--small slds-p-vertical--medium">Create Authorize</legend>
+
+			<aura:if isTrue="{!!v.isAuthorize}">
+				<div id="stepOneBlock" class="slds-show">
+					<div class="slds-form-element">
+						<ui:inputSelect aura:id="typeCardInput" label="Card Type" class="slds-input" labelClass="slds-form-element__label" required="true" disabled="{!v.showSpinner}"/>
+						<ui:inputText aura:id="cardInput" label="Card Number" class="slds-input" labelClass="slds-form-element__label" size="16" required="true" value="{!v.cardNumber}" disabled="{!v.showSpinner}"/>
+						<ui:inputSelect aura:id="yearInput" label="Card Expiration Year" class="dynamic" labelClass="slds-form-element__label" required="true" disabled="{!v.showSpinner}"/>
+						<ui:inputSelect aura:id="monthInput" label="Card Expiration Month" class="slds-input" labelClass="slds-form-element__label" required="true" disabled="{!v.showSpinner}"/>
+						<ui:inputText aura:id="ccvInput" label="CCV" class="slds-input" labelClass="slds-form-element__label" size="3" required="true" value="{!v.ccv}" disabled="{!v.showSpinner}"/>
+						<ui:inputNumber aura:id="amountInput" label="Amount to Charge" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.amountToAuthorize}" disabled="{!v.showSpinner}"/>
+					</div>
+				</div><br />
+			<aura:set attribute="else">
+				<aura:if isTrue="{!v.isSuccessAuthorize}">
+					<div class="slds-notify__content slds-grid">
+						<lightning:icon iconName="utility:approval" size="small" class="color-icon-alert-green"/>
+						<div class="slds-col slds-align-middle" style="padding-left: 10px;">
+							<h2 class="slds-text-heading--small">{!v.messageAuthorize}</h2>
+						</div>
+					</div>
+				<aura:set attribute="else">
+					<div class="slds-notify__content slds-grid">
+						<lightning:icon iconName="utility:error" size="small" class="color-icon-alert-red"/>
+						<div class="slds-col slds-align-middle" style="padding-left: 10px;">
+							<h2 class="slds-text-heading--small">{!v.messageAuthorize}</h2>
+						</div>
+					</div>
+				</aura:set>
+				</aura:if>
+			</aura:set>
+			</aura:if>
+
+		</fieldset>
+
+		<div id="btnStepOneBlock" class="slds-grid" style="padding-top: 10px;">
+			<div class="slds-col">
+				<section class="slds-clearfix">
+					<div class="slds-float--right">
+						<aura:if isTrue="{!!v.isAuthorize}">
+							<button class="slds-button slds-button_neutral" disabled="{!v.showSpinner}" onclick="{!c.cancelClick}">Cancel</button>
+							<button class="slds-button slds-button_brand" disabled="{!v.showSpinner}" onclick="{!c.authorizeClick}">Authorize</button>
+						<aura:set attribute="else">
+							<button class="slds-button slds-button_neutral" disabled="{!v.showSpinner}" onclick="{!c.cancelClick}">Close</button>
+						</aura:set>
+						</aura:if>
+					</div>
+				</section>
+			</div>
+		</div>
+	</div>
+</aura:component>

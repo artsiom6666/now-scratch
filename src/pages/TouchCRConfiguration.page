@@ -1,0 +1,1381 @@
+<apex:page showHeader="true" sidebar="true" controller="TouchCRConfigurationController" docType="html-5.0" title="TouchCR Settings">
+
+	<apex:includeScript value="{!URLFOR($Resource.validation,'validation/jquery-1.8.2.min.js')}"/>
+
+	<style type="text/css">
+		.bPageBlock .detailList .labelCol {
+			width: 30%;
+			vertical-align: middle;
+		}
+		.colstyle {
+			width: 50%;
+		}
+		.divstyle {
+			margin: 0 auto;
+			width: 60%;
+			text-align: center;
+		}
+		.apexp .bPageBlock.apexDefaultPageBlock .pbBody .pbSubheader {
+			color: #404040 !important;
+		}
+		.tertiaryPalette {
+			background-color: #cfeef8 !important;
+			border-color: #cfeef8 !important;
+		}
+
+		.statusBox-layer {
+			position: fixed;
+			top: 0;
+			left: 0;
+			height: 100%;
+			width: 100%;
+			z-index: 99999;
+		}
+		.statusBox-msgBox {
+			width: 100%;
+			height: 100%;
+			background-color: #ffffff;
+			opacity:0.4;
+			filter:alpha(opacity=40);
+		}
+		.statusBox-msg {
+			position: fixed;
+			top: 45%;
+			left: 50%;
+			padding: 10px;
+			border: 1px solid #aaaaaa;
+			background-color: white;
+		}
+		.fieldWidth{
+			width:330px;
+		}
+		.fieldDataAppendWidth{
+			width: 50%;
+		}
+		.tableHeader {
+			text-align: center;
+		}
+		.tableClass {
+			text-align: center;
+		}
+	</style>
+
+<apex:form >
+
+	<apex:actionStatus id="spinner">
+		<apex:facet name="start">
+			<div class="statusBox-layer">
+					<div class="statusBox-msgBox"></div>
+					<div class="statusBox-msg">
+						<img src="/img/loading.gif" />&nbsp;&nbsp;Please Wait...
+					</div>
+			</div>
+		</apex:facet>
+	</apex:actionStatus>
+
+	<apex:tabPanel switchType="client" selectedTab="TouchCRConfiguration">
+
+		<apex:tab label="TouchCR Configuration" name="TouchCRConfiguration">
+			<apex:actionRegion >
+			<apex:outputPanel id="touchcconfigurationpanel">
+				<apex:pageMessage summary="Click on the appropriate tab according to the feature you need to setup." severity="info" strength="3" />
+			</apex:outputPanel>
+			</apex:actionRegion>
+		</apex:tab>
+
+		<apex:tab label="TouchCR Settings" name="TouchCRSettings">
+			<apex:actionRegion >
+			<apex:outputPanel id="touchcrsettingsrpanel">
+
+			<apex:pageMessages />
+
+				<apex:pageBlock >
+					<apex:pageBlockButtons >
+						<apex:commandButton action="{!saveTouchCRSettings}" value="Save" status="spinner" reRender="touchcrsettingsrpanel"/>
+						<apex:commandButton action="{!cancelTouchCRSettings}" value="Cancel" status="spinner" reRender="touchcrsettingsrpanel"/>
+					</apex:pageBlockButtons>
+
+					<apex:pageBlockSection collapsible="false" columns="1" >
+						<apex:pageBlock >
+								<apex:pageBlockSection title="Community selection and Brands for RFM calculation" columns="1" collapsible="false" >
+									<apex:dataTable value="{!wrappers}" var="wrap" id="theTable" rowClasses="odd,even" cellpadding="5px" align="center" styleClass="tableClass" headerClass="tableHeader">
+										<apex:column >
+											<apex:facet name="header">Brands</apex:facet>
+											<apex:outputText value="{!wrap.name}"/>
+										</apex:column>
+										<apex:column >
+											<apex:facet name="header">Status</apex:facet>
+											<apex:inputCheckbox value="{!wrap.status}"/>
+										</apex:column>
+										<apex:column >
+											<apex:facet name="header">Profile</apex:facet>
+											<apex:selectList value="{!wrap.commValue}" size="1" disabled="{!profOptions.size == 0}">
+													<apex:selectOptions value="{!profOptions}"/>
+											</apex:selectList>
+										</apex:column>
+										<apex:column >
+											<apex:facet name="header">Payment Agents</apex:facet>
+											<apex:selectList value="{!wrap.gatewayId}" size="1" disabled="{!paymentOptions.size == 1}">
+													<apex:selectOptions value="{!paymentOptions}"/>
+											</apex:selectList>
+										</apex:column>
+										<apex:column >
+											<apex:facet name="header">Google Analytics</apex:facet>
+											<apex:inputText value="{!wrap.googleValue}" />
+										</apex:column>
+									</apex:dataTable>
+
+								</apex:pageBlockSection>
+							</apex:pageBlock>
+
+							<apex:pageBlock rendered="{!isAbleMinfraud}">
+							<apex:pageBlockSection columns="1" title="MinFraud API Credential" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="MinFraud API Key" for="MinFraudKey"/>
+									<apex:inputSecret id="MinFraudKey" styleClass="fieldWidth" value="{!apiKey}" redisplay="true"/>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Safe Limit:" for="MinFraudFirstRating">
+										<span class="helpButton" id="example-title-_help">
+											<img src="/s.gif" title="If Fraud is less than 30 and greater than 0, then just process the payment" class="helpOrb"/>
+										</span>
+									</apex:outputLabel>
+									<apex:inputText id="MinFraudFirstRating" styleClass="fieldWidth" value="{!firstRating}"/>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Fraud Limit:" for="MinFraudSecondRating">
+										<span class="helpButton" id="example-title-_help">
+											<img src="/s.gif" title="If Fraud is less than 75 and greater than 30, then just process the payment and create the case and If Fraud is greater than 75, then delete the order." class="helpOrb"/>
+										</span>
+									</apex:outputLabel>
+									<apex:inputText id="MinFraudSecondRating" styleClass="fieldWidth" value="{!secondRating}"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+
+					</apex:pageBlockSection>
+
+					<apex:pageBlockSection collapsible="false" columns="3" rendered="{!isAbleUsps}">
+						<apex:pageBlock >
+							<apex:pageBlockSection title="USPS Settings" columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="USPS User Id" for="uspsvalue"/>
+									<apex:inputSecret id="uspsvalue" value="{!uspsValue}" redisplay="true"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Trigger Settings" columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Create community user?" for="usercreation"/>
+									<apex:inputCheckbox id="usercreation" value="{!isUserCreation}"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Proxy Settings" columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Proxy enabled?" for="proxyenabled"/>
+									<apex:inputCheckbox id="proxyenabled" value="{!isProxyEnabled}"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+					</apex:pageBlockSection>
+
+					<apex:pageBlockSection collapsible="false" columns="3">
+						<apex:pageBlock >
+							<apex:pageBlockSection title="RFM Score Brand Batch Settings " columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="State" for="stateRFMSB"/>
+									<apex:selectList value="{!selectedStateRFMScoreBrand}" size="1" id="stateRFMSB" >
+										<apex:selectOptions value="{!allStates}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Every" for="executeDayRFMSB"/>
+									<apex:selectList value="{!selectedExecuteAtRFMScoreBrandDay}" size="1" id="executeDayRFMSB" >
+										<apex:selectOptions value="{!allExecuteAtDay}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Execute At" for="executeRFMSB"/>
+									<apex:selectList value="{!selectedExecuteAtRFMScoreBrand}" size="1" id="executeRFMSB" >
+										<apex:selectOptions value="{!allExecuteAt}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Next Scheduled Run" for="nextscheduledRFMSB"/>
+									<apex:outputText value=" {!nextRunTimeRFMScoreBrand}" id="nextscheduledRFMSB"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton action="{!executeNowRFMScoreBrand}" value="Execute Now" status="spinner" reRender="touchcrsettingsrpanel"/>
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+
+						<apex:pageBlock >
+							<apex:pageBlockSection title="RFM Score Batch Settings" columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+								<apex:outputLabel value="State" for="stateRFMS"/>
+								<apex:selectList value="{!selectedStateRFMScore}" size="1" id="stateRFMS" >
+									<apex:selectOptions value="{!allStates}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Every" for="executeDayRFMS"/>
+								<apex:selectList value="{!selectedExecuteAtRFMScoreDay}" size="1" id="executeDayRFMS" >
+									<apex:selectOptions value="{!allExecuteAtDay}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Execute At" for="executeRFMSB"/>
+								<apex:selectList value="{!selectedExecuteAtRFMScore}" size="1" id="executeRFMSB" >
+									<apex:selectOptions value="{!allExecuteAt}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Next Scheduled Run" for="nextscheduledRFMS"/>
+								<apex:outputText value=" {!nextRunTimeRFMScore}" id="nextscheduledRFMS"/>
+							</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton action="{!executeNowRFMScore}" value="Execute Now" status="spinner" reRender="touchcrsettingsrpanel"/>
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Campaign Member Batch Settings" columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+								<apex:outputLabel value="State" for="stateCM"/>
+								<apex:selectList value="{!selectedStateCampaignMember}" size="1" id="stateCM" >
+									<apex:selectOptions value="{!allStates}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Every" for="executeDayCM"/>
+								<apex:selectList value="{!selectedExecuteCampaignMemberDay}" size="1" id="executeDayCM" >
+									<apex:selectOptions value="{!allExecuteAtDay}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Execute At" for="executeCM"/>
+								<apex:selectList value="{!selectedExecuteCampaignMember}" size="1" id="executeCM" >
+									<apex:selectOptions value="{!allExecuteAt}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Next Scheduled Run" for="nextscheduledCM"/>
+								<apex:outputText value=" {!nextRunTimeCampaignMember}" id="nextscheduledCM"/>
+							</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton action="{!executeNowCampaignMember}" value="Execute Now" status="spinner" reRender="touchcrsettingsrpanel"/>
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+					</apex:pageBlockSection>
+
+					<apex:pageBlockSection collapsible="false" columns="2">
+						<apex:pageBlock >
+							<apex:pageBlockSection title="House Cleaner Batch Settings " columns="3" collapsible="false">
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="State" for="stateHouseCleaner"/>
+								<apex:selectList value="{!selectedStateHouseCleaner}" size="1" id="stateHouseCleaner" >
+									<apex:selectOptions value="{!allStates}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Object" for="objectHouseCleaner"/>
+								<apex:selectList value="{!selectedObjectHouseCleaner}" size="1" id="objectHouseCleaner" >
+									<apex:selectOptions value="{!allHouseCleanerObjects}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Every" for="executeDayHouseCleaner"/>
+								<apex:selectList value="{!selectedExecuteHouseCleanerDay}" size="1" id="executeDayHouseCleaner" >
+									<apex:selectOptions value="{!allExecuteAtDay}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Age" for="recordAgeHouseCleaner"/>
+								<apex:selectList value="{!selectedRecordAgeHouseCleaner}" size="1" id="recordAgeHouseCleaner" >
+									<apex:selectOptions value="{!allRecordAges}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Execute At" for="executeHouseCleaner"/>
+								<apex:selectList value="{!selectedExecuteHouseCleaner}" size="1" id="executeHouseCleaner" >
+									<apex:selectOptions value="{!allExecuteAt}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+							<apex:pageBlockSectionItem />
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Next Scheduled Run" for="nextscheduledHouseCleaner"/>
+								<apex:outputText value=" {!nextRunTimeHouseCleaner}" id="nextscheduledHouseCleaner"/>
+							</apex:pageBlockSectionItem>
+							<apex:pageBlockSectionItem />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton action="{!executeNowHouseCleaner}" value="Execute Now" status="spinner" reRender="touchcrsettingsrpanel"/>
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Subscription Settings " columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="State" for="stateDataSubscription"/>
+									<apex:selectList value="{!selectedStateSubscription}" size="1" id="stateDataSubscription" >
+										<apex:selectOptions value="{!allStates}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Every" for="executeSubscriptionDay"/>
+									<apex:selectList value="{!selectedExecuteAtSubscriptionDay}" size="1" id="executeSubscriptionDay" >
+										<apex:selectOptions value="{!allExecuteAtDay}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Execute At" for="executeSubscription"/>
+									<apex:selectList value="{!selectedExecuteAtSubscription}" size="1" id="executeSubscription" >
+										<apex:selectOptions value="{!allExecuteAt}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Next Scheduled Run" for="nextscheduledSubscription"/>
+									<apex:outputText value=" {!nextRunTimeSubscription}" id="nextscheduledSubscription"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton action="{!executeNowSubscription}" value="Execute Now" status="spinner" reRender="touchcrsettingsrpanel"/>
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+<!--
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Refund Period Batch Settings " columns="2" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="State" for="selectedStateRefundPeriod"/>
+									<apex:selectList value="{!selectedStateRefundPeriod}" size="1" id="selectedStateRefundPeriod" >
+										<apex:selectOptions value="{!allStates}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Refund Period (Days)" for="selectedDaysRefundPeriod"/>
+									<apex:selectList value="{!selectedDaysRefundPeriod}" size="1" id="selectedDaysRefundPeriod" >
+										<apex:selectOptions value="{!allSelectedDaysRefundPeriod}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Every" for="selectedExecuteAtRefundPeriodDay"/>
+									<apex:selectList value="{!selectedExecuteAtRefundPeriodDay}" size="1" id="selectedExecuteAtRefundPeriodDay" >
+										<apex:selectOptions value="{!allExecuteAtDay}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Execute At" for="selectedExecuteAtRefundPeriod"/>
+									<apex:selectList value="{!selectedExecuteAtRefundPeriod}" size="1" id="selectedExecuteAtRefundPeriod" >
+										<apex:selectOptions value="{!allExecuteAt}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Next Scheduled Run" for="nextRunTimeRefundPeriod"/>
+									<apex:outputText value=" {!nextRunTimeRefundPeriod}" id="nextRunTimeRefundPeriod"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton action="{!executeNowRefundPeriod}" value="Execute Now" status="spinner" reRender="touchcrsettingsrpanel"/>
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+					-->
+					</apex:pageBlockSection>
+				</apex:pageBlock>
+			</apex:outputPanel>
+			</apex:actionRegion>
+		</apex:tab>
+
+		<!-- DATA Append TAB -->
+		<apex:tab label="Data Append Settings" name="DASettings" rendered="{!isAbleDataAppend}">
+			<apex:actionRegion >
+				<apex:pageBlock title="Data Append">
+
+					<apex:pageBlockButtons >
+						<apex:commandButton action="{!saveDASettings}" value="Save" status="spinner" reRender="dapanel"/>
+						<apex:commandButton action="{!cancelDASettings}" value="Cancel" status="spinner" reRender="dapanel"/>
+					</apex:pageBlockButtons>
+					<apex:pageMessages />
+
+					<apex:pageBlockSection collapsible="false" columns="2">
+						<apex:pageBlock id="dapanel">
+							<apex:pageBlockSection title="Data Append Batch Settings " columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="State" for="stateDataAppend"/>
+									<apex:selectList value="{!selectedStateDataAppend}" size="1" id="stateDataAppend" >
+										<apex:selectOptions value="{!allStates}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Every" for="executeDataAppend"/>
+									<apex:selectList value="{!selectedExecuteDataAppend}" size="1" id="executeDataAppend" >
+										<apex:selectOptions value="{!allExecuteAtHours}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Next Scheduled Run" for="nextscheduledDataAppend"/>
+									<apex:outputText value=" {!nextRunTimeDataAppend}" id="nextscheduledDataAppend"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton action="{!executeNowDataAppend}" value="Execute Now" status="spinner" reRender="dapanel"/>
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Approver Settings" collapsible="false" columns="1">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Approver #1" for="idApprover1"/>
+									<apex:inputField id="idApprover1" value="{!approverId1.OwnerId}" required="false"/>
+								</apex:pageBlockSectionItem>
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Approver #2" for="idApprover2"/>
+									<apex:inputField id="idApprover2" value="{!approverId2.OwnerId}" required="false"/>
+								</apex:pageBlockSectionItem>
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Approver #3" for="idApprover3"/>
+									<apex:inputField id="idApprover3" value="{!approverId3.OwnerId}" required="false"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+					</apex:pageBlockSection>
+
+					<apex:pageBlockSection collapsible="false" columns="2">
+
+						<apex:pageBlock >
+						<!-- GLOBAL SETTINGS -->
+							<apex:pageBlockSection title="Global Settings" columns="2" collapsible="false">
+									<apex:repeat value="{!globalSettingsBWr}" var="settingB">
+									<apex:inputCheckbox id="someid" value="{!settingB.valueB}" label="{!settingB.label}"/> <br />
+								</apex:repeat>
+								<apex:repeat value="{!globalSettingsNWr}" var="settingN">
+									<apex:inputText id="someid" value="{!settingN.valueN}" label="{!settingN.label}"/> <br />
+								</apex:repeat>
+								<apex:repeat value="{!globalSettingsDWr}" var="settingD">
+									<apex:input type="date" id="someid" value="{!settingD.valueD}" label="{!settingD.label}"/> <br />
+								</apex:repeat>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+
+						<apex:pageBlock >
+						<!-- LEAD CONVERSION -->
+							<apex:pageBlockSection title="Lead Conversion Settings" columns="2" collapsible="false">
+								<apex:repeat value="{!leadConverseSettingsBWr}" var="settingB">
+									<apex:inputCheckbox id="someid" value="{!settingB.valueB}" label="{!settingB.label}"/> <br />
+								</apex:repeat>
+								<apex:repeat value="{!leadConverseSettingsNWr}" var="settingN">
+									<apex:inputText id="someid" value="{!settingN.valueN}" label="{!settingN.label}"/> <br />
+								</apex:repeat>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+
+					</apex:pageBlockSection>
+
+				<!-- TowerData SETTINGS -->
+				<apex:outputPanel >
+				<apex:pageBlock title="Email Append settings:">
+
+					<!-- GLOBAL SETTINGS -->
+					<apex:pageBlockSection collapsible="false" columns="2">
+						<!-- API KEYS -->
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Global Settings" columns="2" collapsible="false">
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Enabled" for="enableExecuteDataAppend"/>
+									<apex:inputCheckbox value="{!enableExecuteDataAppend}" id="enableExecuteDataAppend"/>
+								</apex:pageBlockSectionItem>
+
+								<apex:repeat value="{!globalSettingsSWr}" var="settingS" >
+									<!-- <apex:inputText id="someid" value="{!settingS.valueS}" label="{!settingS.label}" /> -->
+									<apex:inputSecret id="someid" value="{!settingS.valueS}" label="{!settingS.label}" redisplay="true"/> <br />
+								</apex:repeat>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+
+						<apex:pageBlock id="dalimits">
+							<apex:pageBlockSection title="Limit Settings" columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Limit records in 24 hours:" for="dateTimeApproveLimit"/>
+									<apex:inputText id="dateTimeApproveLimit" value="{!dataAppendLimit}" />
+								</apex:pageBlockSectionItem>
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Limit exceeded by:" for="dateTimeApproveExcess"/>
+									<apex:outputText id="dateTimeApproveExcess" value="{!dataAppendExcess}" />
+								</apex:pageBlockSectionItem>
+
+							</apex:pageBlockSection>
+
+							<apex:pageMessage summary="The Data Append process is currently stopped due the exceeding the limit. {!dataAppendExcess} record(s) are pending for Approval." rendered="{!IF(dataAppendExcess > 0, true, false)}" severity="Warning" />
+
+							<apex:pageBlockButtons location="bottom" >
+								<apex:commandButton action="{!confirmWork}" rendered="{!IF((dataAppendExcess > 0 && userApprover = true), true, false)}" value="Approve" status="spinner" reRender="dalimits" />
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+					</apex:pageBlockSection>
+
+					<!-- OBJECT SETTINGS -->
+					<apex:pageBlockSection collapsible="false" columns="2">
+						<!-- ACCOUNT SETTINGS -->
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Account Settings" columns="2" collapsible="false">
+								<apex:repeat value="{!accountSettingsBWr}" var="setting">
+									<apex:inputCheckbox id="someid" value="{!setting.valueB}" label="{!setting.label}"/> <br />
+								</apex:repeat>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+						<!-- LEAD SETTINGS -->
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Lead Settings" columns="2" collapsible="false">
+								<apex:repeat value="{!leadSettingsBWr}" var="setting">
+									<apex:inputCheckbox id="someid" value="{!setting.valueB}" label="{!setting.label}"/> <br />
+								</apex:repeat>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+					</apex:pageBlockSection>
+
+				</apex:pageBlock>
+				</apex:outputPanel>
+
+				<apex:outputPanel >
+					<apex:pageBlock title="Social Append settings:">
+
+						<!-- FULLCONTACT SETTINGS -->
+						<apex:pageBlockSection collapsible="false" columns="2">
+
+							<apex:pageBlock >
+								<apex:pageBlockSection title="Global Settings" columns="2" collapsible="false">
+									<apex:pageBlockSectionItem >
+										<apex:outputLabel value="Enabled" for="enableExecuteFullContact"/>
+										<apex:inputCheckbox value="{!enableExecuteFullContact}" id="enableExecuteFullContact"/>
+									</apex:pageBlockSectionItem>
+
+									<apex:repeat value="{!fcSettingsSWr}" var="settingS" >
+										<apex:inputSecret id="someid" value="{!settingS.valueS}" label="{!settingS.label}" redisplay="true"/> <br />
+									</apex:repeat>
+
+									<apex:pageBlockSectionItem >
+										<apex:outputLabel value="Append Social Profiles" for="appendSocialProfiles"/>
+										<apex:inputCheckbox value="{!appendSocialProfiles}" id="appendSocialProfiles"/>
+									</apex:pageBlockSectionItem>
+
+								</apex:pageBlockSection>
+							</apex:pageBlock>
+
+							<apex:pageBlock id="fclimit">
+								<apex:pageBlockSection title="Limit Settings" columns="1" collapsible="false">
+									<apex:pageBlockSectionItem >
+										<apex:outputLabel value="Limit records in 24 hours:" for="dateTimeFCApproveLimit"/>
+										<apex:inputText id="dateTimeFCApproveLimit" value="{!fullContactLimit}" />
+									</apex:pageBlockSectionItem>
+									<apex:pageBlockSectionItem >
+										<apex:outputLabel value="Limit exceeded by:" for="dateTimeFCApproveExcess"/>
+										<apex:outputText id="dateTimeFCApproveExcess" value="{!fullContactExcess}" />
+									</apex:pageBlockSectionItem>
+								</apex:pageBlockSection>
+
+								<apex:pageMessage summary="The Data Append process is currently stopped due the exceeding the limit. {!fullContactExcess} record(s) are pending for Approval." rendered="{!IF(fullContactExcess > 0, true, false)}" severity="Warning"/>
+
+								<apex:pageBlockButtons location="bottom" >
+									<apex:commandButton action="{!confirmWorkFC}" rendered="{!IF((fullContactExcess > 0 && userApprover = true), true, false)}" value="Approve" status="spinner" reRender="fclimit" />
+								</apex:pageBlockButtons>
+
+							</apex:pageBlock>
+
+						</apex:pageBlockSection>
+					</apex:pageBlock>
+				</apex:outputPanel>
+				</apex:pageBlock>
+			</apex:actionRegion>
+
+		</apex:tab>
+
+
+		<apex:tab label="TouchCR Security Endpoint" name="TouchCREndpoint" >
+			<apex:actionRegion >
+				<apex:outputPanel id="endpointpanel">
+				<apex:pageMessages />
+					<apex:pageBlock >
+
+						<apex:pageBlockButtons >
+							<apex:commandButton action="{!linkAuthorizeEndpointToken}" value="Link" status="spinner" reRender="endpointpanel" rendered="{!showCredentialInput}"/>
+							<apex:commandButton action="{!unlinkAuthorizeEndpointToken}" value="Unlink" status="spinner" reRender="endpointpanel" rendered="{!!showCredentialInput}"/>
+						</apex:pageBlockButtons>
+
+							<apex:pageBlock >
+								<apex:pageBlockSection columns="1" title="TouchCR Security Credential" collapsible="false">
+									<apex:pageBlockSectionItem rendered="{!!showCredentialInput}">
+										<apex:outputLabel value="Status:"/>
+										<apex:outputText value="Link"/>
+									</apex:pageBlockSectionItem>
+									<apex:pageBlockSectionItem >
+										<apex:outputLabel value="API Key"/>
+										<apex:inputSecret value="{!clientIdEndpoint}" styleClass="fieldWidth" redisplay="true"/>
+									</apex:pageBlockSectionItem>
+									<apex:pageBlockSectionItem >
+										<apex:outputLabel value="API Key Secret"/>
+										<apex:inputSecret value="{!clientSecretEndpoint}" styleClass="fieldWidth" redisplay="true"/>
+									</apex:pageBlockSectionItem>
+								</apex:pageBlockSection>
+							</apex:pageBlock>
+
+					</apex:pageBlock>
+				</apex:outputPanel>
+			</apex:actionRegion>
+		</apex:tab>
+
+		<apex:tab label="Shopping Cart Settings" name="ScSettings"  rendered="{!touchCRPaypal}">
+			<apex:actionRegion >
+				<apex:outputPanel id="scpanel">
+					<apex:pageMessages />
+						<apex:pageBlock >
+
+							<apex:pageBlockButtons >
+								<apex:commandButton action="{!saveScSettings}" value="Save" status="spinner" reRender="scpanel"/>
+								<apex:commandButton action="{!cancelScSettings}" value="Cancel" status="spinner" reRender="scpanel"/>
+							</apex:pageBlockButtons>
+
+							<apex:pageBlockSection title="Shopping Cart Settings" columns="1" collapsible="false" >
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Brand:" for="Brand"/>
+									<apex:selectList value="{!scBrand}" size="1" styleClass="fieldWidth" disabled="{!nameBrands.size == 0}">
+										<apex:selectOptions value="{!nameBrands}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Store Logo Link:" for="scStoreLogo1"/>
+									<apex:inputText value="{!scStoreLogo}" id="theTextInput"/>
+								 </apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+				</apex:outputPanel>
+			</apex:actionRegion>
+		</apex:tab>
+
+		<apex:tab label="Paypal API Credential" name="PaypalSettings" rendered="{!touchCRPaypal}">
+			<apex:actionRegion >
+				<apex:outputPanel id="paypalpanel">
+				<apex:pageMessages />
+				<apex:pageBlock >
+
+					<apex:pageBlockButtons >
+						<apex:commandButton action="{!savePaypalSettings}" value="Save" status="spinner" reRender="paypalpanel"/>
+						<apex:commandButton action="{!cancelPaypalSettings}" value="Cancel" status="spinner" reRender="paypalpanel"/>
+					</apex:pageBlockButtons>
+
+					<apex:pageBlock >
+						<apex:pageBlockSection title="Paypal Settings" collapsible="false" columns="1">
+							<apex:repeat value="{!ppSettingsWrS}" var="settingS">
+								<apex:inputText id="someid" value="{!settingS.valueS}" label="{!settingS.label}" styleClass="fieldWidth"/>
+							</apex:repeat>
+							<apex:repeat value="{!ppSettingsWrB}" var="settingB">
+								<apex:inputCheckbox id="someid" value="{!settingB.valueB}" label="{!settingB.label}" />
+							</apex:repeat>
+						</apex:pageBlockSection>
+					</apex:pageBlock>
+
+				</apex:pageBlock>
+				</apex:outputPanel>
+			</apex:actionRegion>
+		</apex:tab>
+
+		<apex:tab label="Woo API Credential" name="WOOSettings" rendered="{!touchCRWoo}">
+			<apex:actionRegion >
+				<apex:outputPanel id="woopanel">
+				<apex:pageMessages />
+				<apex:pageBlock >
+
+					<apex:pageBlockButtons >
+						<apex:commandButton action="{!saveWooSettings}" value="Save" status="spinner" reRender="woopanel"/>
+						<apex:commandButton action="{!cancelWooSettings}" value="Cancel" status="spinner" reRender="woopanel"/>
+					</apex:pageBlockButtons>
+					<!-- CONNECTIONS -->
+					<apex:pageBlock >
+						<apex:pageBlockSection title="Woo Available Connections" columns="1" collapsible="false">
+							<apex:pageBlockTable value="{!wooConnections}" var="wrap" rendered="{!wooConnections.size > 0}">
+								<apex:column headerValue="Name">
+									<div >
+										<apex:outputText value="{!wrap.Name}" />
+									</div>
+								</apex:column>
+								<apex:column headerValue="Brand">
+									<div >
+										<apex:outputText value="{!wrap.Brand__c}" />
+									</div>
+								</apex:column>
+								<apex:column headerValue="Feature">
+									<div >
+										<apex:outputText value="{!wrap.Feature__c}" />
+									</div>
+								</apex:column>
+							</apex:pageBlockTable>
+
+							<apex:outputPanel rendered="{!wooConnections.size == 0}">
+								No available connections.
+							</apex:outputPanel>
+						</apex:pageBlockSection>
+						<apex:pageBlockButtons location="bottom">
+							<apex:commandButton value="Manage Connections" action="{!URLFOR($Page.TouchCRMultipleConfiguration)}"/>
+						</apex:pageBlockButtons>
+					</apex:pageBlock>
+					<!-- WOO BATCHSETTINGS -->
+					<apex:pageBlock >
+						<apex:pageBlockSection title="Woo Batch Settings" collapsible="false" columns="1">
+
+							<!-- STATE -->
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="State" for="stateWoo"/>
+								<apex:selectList value="{!selectedStateWoo}" size="1" id="stateWoo" >
+									<apex:selectOptions value="{!allStatesWoo}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<!-- CALLOUT IN EVERY EXECUTION: -->
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="CallOut in Every Execution:" />
+								<apex:selectList value="{!wooCallOuts}"  size="1">
+									<apex:selectOptions value="{!wooCallOut}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+							<!-- SCHEDULE BY -->
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Schedule by" for="scheduleByWoo"/>
+								<apex:selectList value="{!selectedFrequencyParameterWoo}" size="1" id="scheduleByWoo" >
+									<apex:selectOptions value="{!allFrequencyParametersWoo}"/>
+									<apex:actionSupport event="onchange" reRender="woopanel"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterWoo == 'Days'}">
+								<apex:outputLabel value="Every" for="executeDayWoo"/>
+								<apex:selectList value="{!selectedExecuteWooDay}" size="1" id="executeDayWoo" >
+									<apex:selectOptions value="{!allExecuteAtDayWoo}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterWoo == 'Days'}">
+								<apex:outputLabel value="Execute At" for="executeWoo"/>
+								<apex:selectList value="{!selectedExecuteWoo}" size="1" id="executeWoo" >
+									<apex:selectOptions value="{!allExecuteAtWoo}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterWoo == 'Hours'}">
+								<apex:outputLabel value="Every" for="executeHoursWoo"/>
+								<apex:selectList value="{!selectedExecuteHoursWoo}" size="1" id="executeHoursWoo" >
+									<apex:selectOptions value="{!allExecuteHoursWoo}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Next Scheduled Run" for="nextscheduledWoo"/>
+								<apex:outputText value=" {!nextRunTimeWoo}" id="nextscheduledWoo"/>
+							</apex:pageBlockSectionItem>
+
+						</apex:pageBlockSection>
+
+						<apex:pageBlockButtons location="bottom">
+							<apex:commandButton action="{!executeNowWoo}" value="Run Scheduler" status="spinner" reRender="woopanel"/>
+						</apex:pageBlockButtons>
+					</apex:pageBlock>
+				</apex:pageBlock>
+
+				</apex:outputPanel>
+			</apex:actionRegion>
+		</apex:tab>
+
+		<!-- SHOPIFY TAB -->
+		<apex:tab label="Shopify API Credential" name="ShopifySettings" rendered="{!touchCRShopify}">
+			<apex:actionRegion >
+				<apex:outputPanel id="shopifypanel">
+				<apex:pageMessages />
+				<apex:pageBlock >
+
+					<!-- BUTTONS -->
+					<apex:pageBlockButtons >
+						<apex:commandButton action="{!saveShopifySettings}" value="Save" status="spinner" reRender="shopifypanel"/>
+						<apex:commandButton action="{!cancelShopifySettings}" value="Cancel" status="spinner" reRender="shopifypanel"/>
+					</apex:pageBlockButtons>
+					<!-- CONNECTIONS -->
+					<apex:pageBlock >
+						<apex:pageBlockSection title="Shopify Available Connections" columns="1" collapsible="false">
+							<apex:pageBlockTable value="{!shopifyConnections}" var="wrap" rendered="{!shopifyConnections.size > 0}">
+								<apex:column headerValue="Name">
+									<div >
+										<apex:outputText value="{!wrap.Name}" />
+									</div>
+								</apex:column>
+								<apex:column headerValue="Brand">
+									<div >
+										<apex:outputText value="{!wrap.Brand__c}" />
+									</div>
+								</apex:column>
+								<apex:column headerValue="Feature">
+									<div >
+										<apex:outputText value="{!wrap.Feature__c}" />
+									</div>
+								</apex:column>
+							</apex:pageBlockTable>
+
+							<apex:outputPanel rendered="{!shopifyConnections.size == 0}">
+								No available connections.
+							</apex:outputPanel>
+						</apex:pageBlockSection>
+						<apex:pageBlockButtons location="bottom">
+							<apex:commandButton value="Manage Connections" action="{!URLFOR($Page.TouchCRMultipleConfiguration)}"/>
+						</apex:pageBlockButtons>
+					</apex:pageBlock>
+					<!-- SHOPIFY BATCHSETTINGS -->
+					<apex:pageBlock >
+						<apex:pageBlockSection title="Shopify Batch Settings" collapsible="false" columns="1">
+
+							<!-- STATE -->
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="State" for="stateShopify"/>
+								<apex:selectList value="{!selectedStateShopify}" size="1" id="stateShopify" >
+									<apex:selectOptions value="{!allStatesShopify}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<!-- CALLOUT IN EVERY EXECUTION: -->
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="CallOut in Every Execution:" />
+								<apex:selectList value="{!shopifyCallOuts}"  size="1">
+									<apex:selectOptions value="{!shopifyCallOut}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+							<!-- SCHEDULE BY -->
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Schedule by" for="scheduleByShopify"/>
+								<apex:selectList value="{!selectedFrequencyParameterShopify}" size="1" id="scheduleByShopify" >
+									<apex:selectOptions value="{!allFrequencyParametersShopify}"/>
+									<apex:actionSupport event="onchange" reRender="shopifypanel"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterShopify == 'Days'}">
+								<apex:outputLabel value="Every" for="executeDayShopify"/>
+								<apex:selectList value="{!selectedExecuteShopifyDay}" size="1" id="executeDayShopify" >
+									<apex:selectOptions value="{!allExecuteAtDayShopify}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterShopify == 'Days'}">
+								<apex:outputLabel value="Execute At" for="executeShopify"/>
+								<apex:selectList value="{!selectedExecuteShopify}" size="1" id="executeShopify" >
+									<apex:selectOptions value="{!allExecuteAtShopify}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterShopify == 'Hours'}">
+								<apex:outputLabel value="Every" for="executeHoursShopify"/>
+								<apex:selectList value="{!selectedExecuteHoursShopify}" size="1" id="executeHoursShopify" >
+									<apex:selectOptions value="{!allExecuteHoursShopify}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Next Scheduled Run" for="nextscheduledAmazon"/>
+								<apex:outputText value=" {!nextRunTimeShopify}" id="nextscheduledAmazon"/>
+							</apex:pageBlockSectionItem>
+
+						</apex:pageBlockSection>
+
+						<apex:pageBlockButtons location="bottom">
+							<apex:commandButton action="{!executeNowShopify}" value="Run Scheduler" status="spinner" reRender="shopifypanel"/>
+						</apex:pageBlockButtons>
+					</apex:pageBlock>
+
+				</apex:pageBlock>
+				</apex:outputPanel>
+			</apex:actionRegion>
+		</apex:tab>
+
+		<apex:tab label="Magento API Credential" name="MagentoSettings"  rendered="{!touchCRMagento}">
+			<apex:actionRegion >
+				<apex:outputPanel id="magentopanel">
+				<apex:pageMessages />
+				<apex:pageBlock >
+
+					<apex:pageBlockButtons >
+						<apex:commandButton action="{!saveMagentoSettings}" value="Save" status="spinner" reRender="magentopanel"/>
+						<apex:commandButton action="{!cancelMagentoSettings}" value="Cancel" status="spinner" reRender="magentopanel"/>
+					</apex:pageBlockButtons>
+
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Magento Available Connections" columns="1" collapsible="false">
+								<apex:pageBlockTable value="{!magentoConnections}" var="wrap" rendered="{!magentoConnections.size > 0}">
+									<apex:column headerValue="Name">
+										<div >
+											<apex:outputText value="{!wrap.Name}" />
+										</div>
+									</apex:column>
+									<apex:column headerValue="Brand">
+										<div >
+											<apex:outputText value="{!wrap.Brand__c}" />
+										</div>
+									</apex:column>
+									<apex:column headerValue="Feature">
+										<div >
+											<apex:outputText value="{!wrap.Feature__c}" />
+										</div>
+									</apex:column>
+								</apex:pageBlockTable>
+
+								<apex:outputPanel rendered="{!magentoConnections.size == 0}">
+									No available connections.
+								</apex:outputPanel>
+							</apex:pageBlockSection>
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton value="Manage Connections" action="{!URLFOR($Page.TouchCRMultipleConfiguration)}"/>
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Magento Batch Settings" collapsible="false" columns="1">
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="State" for="stateMagento"/>
+									<apex:selectList value="{!selectedStateMagento}" size="1" id="stateMagento" >
+										<apex:selectOptions value="{!allStatesMagento}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Schedule by" for="scheduleByMagento"/>
+									<apex:selectList value="{!selectedFrequencyParameterMagento}" size="1" id="scheduleByMagento" >
+										<apex:selectOptions value="{!allFrequencyParametersMagento}"/>
+										<apex:actionSupport event="onchange" reRender="magentopanel"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterMagento == 'Days'}">
+									<apex:outputLabel value="Every" for="executeDayMagento"/>
+									<apex:selectList value="{!selectedExecuteMagentoDay}" size="1" id="executeDayMagento" >
+										<apex:selectOptions value="{!allExecuteAtDayMagento}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterMagento == 'Days'}">
+									<apex:outputLabel value="Execute At" for="executeMagento"/>
+									<apex:selectList value="{!selectedExecuteMagento}" size="1" id="executeMagento" >
+										<apex:selectOptions value="{!allExecuteAtMagento}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterMagento == 'Hours'}">
+									<apex:outputLabel value="Every" for="executeHoursMagento"/>
+									<apex:selectList value="{!selectedExecuteHoursMagento}" size="1" id="executeHoursMagento" >
+										<apex:selectOptions value="{!allExecuteHoursMagento}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Next Scheduled Run" for="nextscheduledMagento"/>
+									<apex:outputText value=" {!nextRunTimeMagento}" id="nextscheduledMagento"/>
+								</apex:pageBlockSectionItem>
+
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection title="Salesforce Master" columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Salesforce Master:" for="magentoSalesforceMaster"/>
+									<apex:inputCheckbox value="{!magentoSalesforceMaster}" id="magentoSalesforceMaster"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton action="{!executeNowMagento}" value="Run Scheduler" status="spinner" reRender="magentopanel"/>
+							</apex:pageBlockButtons>
+
+						</apex:pageBlock>
+					</apex:pageBlock>
+
+				</apex:outputPanel>
+			</apex:actionRegion>
+		</apex:tab>
+
+		<apex:tab label="Amazon API Credential" name="AmazonSettings" rendered="{!touchCRAmazon}">
+			<apex:actionRegion >
+				<apex:outputPanel id="amazonpanel">
+				<apex:pageMessages />
+				<apex:pageBlock >
+
+					<apex:pageBlockButtons >
+						<apex:commandButton action="{!saveAmazonSettings}" value="Save" status="spinner" reRender="amazonpanel"/>
+						<apex:commandButton action="{!cancelAmazonSettings}" value="Cancel" status="spinner" reRender="amazonpanel"/>
+					</apex:pageBlockButtons>
+
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Amazon Available Connections" columns="1" collapsible="false">
+								<apex:pageBlockTable value="{!amazonConnections}" var="wrap" rendered="{!amazonConnections.size > 0}">
+									<apex:column headerValue="Name">
+										<div >
+											<apex:outputText value="{!wrap.Name}" />
+										</div>
+									</apex:column>
+									<apex:column headerValue="Brand">
+										<div >
+											<apex:outputText value="{!wrap.Brand__c}" />
+										</div>
+									</apex:column>
+									<apex:column headerValue="Feature">
+										<div >
+											<apex:outputText value="{!wrap.Feature__c}" />
+										</div>
+									</apex:column>
+								</apex:pageBlockTable>
+
+								<apex:outputPanel rendered="{!amazonConnections.size == 0}">
+									No available connections.
+								</apex:outputPanel>
+							</apex:pageBlockSection>
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton value="Manage Connections" action="{!URLFOR($Page.TouchCRMultipleConfiguration)}"/>
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Amazon Batch Settings" collapsible="false" columns="1">
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="State" for="stateAmazon"/>
+									<apex:selectList value="{!selectedStateAmazon}" size="1" id="stateAmazon" >
+										<apex:selectOptions value="{!allStatesAmazon}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Schedule by" for="scheduleByAmazon"/>
+									<apex:selectList value="{!selectedFrequencyParameterAmazon}" size="1" id="scheduleByAmazon" >
+										<apex:selectOptions value="{!allFrequencyParametersAmazon}"/>
+										<apex:actionSupport event="onchange" reRender="amazonpanel"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterAmazon == 'Days'}">
+									<apex:outputLabel value="Every" for="executeDayAmazon"/>
+									<apex:selectList value="{!selectedExecuteAmazonDay}" size="1" id="executeDayAmazon" >
+										<apex:selectOptions value="{!allExecuteAtDayAmazon}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterAmazon == 'Days'}">
+									<apex:outputLabel value="Execute At" for="executeAmazon"/>
+									<apex:selectList value="{!selectedExecuteAmazon}" size="1" id="executeAmazon" >
+										<apex:selectOptions value="{!allExecuteAtAmazon}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterAmazon == 'Hours'}">
+									<apex:outputLabel value="Every" for="executeHoursAmazon"/>
+									<apex:selectList value="{!selectedExecuteHoursAmazon}" size="1" id="executeHoursAmazon" >
+										<apex:selectOptions value="{!allExecuteHoursAmazon}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Next Scheduled Run" for="nextscheduledAmazon"/>
+									<apex:outputText value=" {!nextRunTimeAmazon}" id="nextscheduledAmazon"/>
+								</apex:pageBlockSectionItem>
+
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection title="API Settings" columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Resolve Email:" for="amazonResolveEmail"/>
+									<apex:inputCheckbox value="{!amazonResolveEmail}" id="amazonResolveEmail"/>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="DataFinder Key:" for="amazonDataFinderKey"/>
+									<apex:inputText value="{!amazonDataFinderKey}" id="amazonDataFinderKey"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection title="Salesforce Master" columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Salesforce Master:" for="amazonSalesforceMaster"/>
+									<apex:inputCheckbox value="{!amazonSalesforceMaster}" id="amazonSalesforceMaster"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton action="{!executeNowAmazon}" value="Run Scheduler" status="spinner" reRender="amazonpanel"/>
+							</apex:pageBlockButtons>
+
+						</apex:pageBlock>
+
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Amazon Account Merge" columns="1" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="State:" for="stateAmazonMerge"/>
+									<apex:selectList value="{!selectedStateAmazonMerge}" size="1" id="stateAmazonMerge" >
+										<apex:selectOptions value="{!allStatesAmazon}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Schedule by" for="scheduleByAmazonMerge"/>
+									<apex:selectList value="{!selectedFrequencyParameterAmazonMerge}" size="1" id="scheduleByAmazonMerge" >
+										<apex:selectOptions value="{!allFrequencyParametersAmazon}"/>
+										<apex:actionSupport event="onchange" reRender="amazonpanel"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterAmazonMerge == 'Days'}">
+									<apex:outputLabel value="Every" for="executeDayAmazonMerge"/>
+									<apex:selectList value="{!selectedExecuteAmazonMergeDay}" size="1" id="executeDayAmazonMerge" >
+										<apex:selectOptions value="{!allExecuteAtDayAmazon}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterAmazonMerge == 'Days'}">
+									<apex:outputLabel value="Execute At" for="executeAmazonMerge"/>
+									<apex:selectList value="{!selectedExecuteAmazonMerge}" size="1" id="executeAmazonMerge" >
+										<apex:selectOptions value="{!allExecuteAtAmazon}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterAmazonMerge == 'Hours'}">
+									<apex:outputLabel value="Every" for="executeHoursAmazonMerge"/>
+									<apex:selectList value="{!selectedExecuteHoursAmazonMerge}" size="1" id="executeHoursAmazonMerge" >
+										<apex:selectOptions value="{!allExecuteHoursAmazon}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Search for mergeable accounts next run:" for="amazonFindMergeNextRun"/>
+									<apex:outputText value="{!nextRunTimeAmazonMerge}" id="amazonFindMergeNextRun"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton action="{!executeNowAmazonMergeSearch}" value="Run Search" status="spinner" reRender="amazonpanel"/>
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+
+					</apex:pageBlock>
+
+				</apex:outputPanel>
+			</apex:actionRegion>
+		</apex:tab>
+
+        <!-- JET TAB -->
+        <apex:tab label="JET API Credential" name="JetSettings" rendered="{!touchCRJet}">
+            <apex:actionRegion >
+                <apex:outputPanel id="jetpanel">
+                    <apex:pageMessages />
+                    <apex:pageBlock >
+
+                        <!-- BUTTONS -->
+                        <apex:pageBlockButtons >
+                            <apex:commandButton action="{!saveJetSettings}" value="Save" status="spinner" reRender="jetpanel"/>
+                            <apex:commandButton action="{!cancelJetSettings}" value="Cancel" status="spinner" reRender="jetpanel"/>
+                        </apex:pageBlockButtons>
+                        <!-- CONNECTIONS -->
+                        <apex:pageBlock >
+                            <apex:pageBlockSection title="Jet Available Connections" columns="1" collapsible="false">
+                                <apex:pageBlockTable value="{!jetConnections}" var="wrap" rendered="{!jetConnections.size > 0}">
+                                    <apex:column headerValue="Name">
+                                        <div >
+                                            <apex:outputText value="{!wrap.Name}" />
+                                        </div>
+                                    </apex:column>
+                                    <apex:column headerValue="Brand">
+                                        <div >
+                                            <apex:outputText value="{!wrap.Brand__c}" />
+                                        </div>
+                                    </apex:column>
+                                    <apex:column headerValue="Feature">
+                                        <div >
+                                            <apex:outputText value="{!wrap.Feature__c}" />
+                                        </div>
+                                    </apex:column>
+                                </apex:pageBlockTable>
+
+                                <apex:outputPanel rendered="{!jetConnections.size == 0}">
+                                    No available connections.
+                                </apex:outputPanel>
+                            </apex:pageBlockSection>
+                            <apex:pageBlockButtons location="bottom">
+                                <apex:commandButton value="Manage Connections" action="{!URLFOR($Page.TouchCRMultipleConfiguration)}"/>
+                            </apex:pageBlockButtons>
+                        </apex:pageBlock>
+                        <!-- SHOPIFY BATCHSETTINGS -->
+                        <apex:pageBlock >
+                            <apex:pageBlockSection title="Jet Batch Settings" collapsible="false" columns="1">
+
+                                <!-- STATE -->
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel value="State" for="stateJet"/>
+                                    <apex:selectList value="{!selectedStateJet}" size="1" id="stateJet" >
+                                        <apex:selectOptions value="{!allStatesJet}"/>
+                                    </apex:selectList>
+                                </apex:pageBlockSectionItem>
+
+                                <!-- SCHEDULE BY -->
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel value="Schedule by" for="scheduleByJet"/>
+                                    <apex:selectList value="{!selectedFrequencyParameterJet}" size="1" id="scheduleByJet" >
+                                        <apex:selectOptions value="{!allFrequencyParametersJet}"/>
+                                        <apex:actionSupport event="onchange" reRender="jetpanel"/>
+                                    </apex:selectList>
+                                </apex:pageBlockSectionItem>
+
+                                <apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterJet == 'Days'}">
+                                    <apex:outputLabel value="Every" for="executeDayJet"/>
+                                    <apex:selectList value="{!selectedExecuteJetDay}" size="1" id="executeDayJet" >
+                                        <apex:selectOptions value="{!allExecuteAtDayJet}"/>
+                                    </apex:selectList>
+                                </apex:pageBlockSectionItem>
+
+                                <apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterJet == 'Days'}">
+                                    <apex:outputLabel value="Execute At" for="executeJet"/>
+                                    <apex:selectList value="{!selectedExecuteJet}" size="1" id="executeJet" >
+                                        <apex:selectOptions value="{!allExecuteAtJet}"/>
+                                    </apex:selectList>
+                                </apex:pageBlockSectionItem>
+
+                                <apex:pageBlockSectionItem rendered="{!selectedFrequencyParameterJet == 'Hours'}">
+                                    <apex:outputLabel value="Every" for="executeHoursJet"/>
+                                    <apex:selectList value="{!selectedExecuteHoursJet}" size="1" id="executeHoursJet" >
+                                        <apex:selectOptions value="{!allExecuteHoursJet}"/>
+                                    </apex:selectList>
+                                </apex:pageBlockSectionItem>
+
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel value="Next Scheduled Run" for="nextscheduledAmazon"/>
+                                    <apex:outputText value=" {!nextRunTimeJet}" id="nextscheduledAmazon"/>
+                                </apex:pageBlockSectionItem>
+
+                            </apex:pageBlockSection>
+
+                            <apex:pageBlockButtons location="bottom">
+                                <apex:commandButton action="{!executeNowJet}" value="Run Scheduler" status="spinner" reRender="jetpanel"/>
+                            </apex:pageBlockButtons>
+                        </apex:pageBlock>
+
+                    </apex:pageBlock>
+                </apex:outputPanel>
+            </apex:actionRegion>
+        </apex:tab>
+
+        <apex:tab label="Affiliate Setting" name="AffiliateSetting" rendered="{!touchCRAffiliate}">
+			<apex:actionRegion >
+			<apex:outputPanel id="affiliatesettingpanel">
+
+			<apex:pageMessages />
+
+				<apex:pageBlock >
+					<apex:pageBlockButtons >
+						<apex:commandButton action="{!saveAffiliateSettings}" value="Save" status="spinner" reRender="affiliatesettingpanel"/>
+						<apex:commandButton action="{!cancelAffiliateSettings}" value="Cancel" status="spinner" reRender="affiliatesettingpanel"/>
+					</apex:pageBlockButtons>
+
+					<apex:pageBlockSection collapsible="false" columns="2" >
+						<apex:pageBlock >
+							<apex:pageBlockSection title="Refund Period Batch Settings " columns="2" collapsible="false">
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="State" for="selectedStateRefundPeriod"/>
+									<apex:selectList value="{!selectedStateRefundPeriod}" size="1" id="selectedStateRefundPeriod" >
+										<apex:selectOptions value="{!allStates}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Refund Period (Days)" for="selectedDaysRefundPeriod"/>
+									<apex:selectList value="{!selectedDaysRefundPeriod}" size="1" id="selectedDaysRefundPeriod" >
+										<apex:selectOptions value="{!allSelectedDaysRefundPeriod}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Every" for="selectedExecuteAtRefundPeriodDay"/>
+									<apex:selectList value="{!selectedExecuteAtRefundPeriodDay}" size="1" id="selectedExecuteAtRefundPeriodDay" >
+										<apex:selectOptions value="{!allExecuteAtDay}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Execute At" for="selectedExecuteAtRefundPeriod"/>
+									<apex:selectList value="{!selectedExecuteAtRefundPeriod}" size="1" id="selectedExecuteAtRefundPeriod" >
+										<apex:selectOptions value="{!allExecuteAt}"/>
+									</apex:selectList>
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+								</apex:pageBlockSectionItem>
+
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Next Scheduled Run" for="nextRunTimeRefundPeriod"/>
+									<apex:outputText value=" {!nextRunTimeRefundPeriod}" id="nextRunTimeRefundPeriod"/>
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockButtons location="bottom">
+								<apex:commandButton action="{!executeNowRefundPeriod}" value="Execute Now" status="spinner" reRender="touchcrsettingsrpanel"/>
+							</apex:pageBlockButtons>
+						</apex:pageBlock>
+					</apex:pageBlockSection>
+				</apex:pageBlock>
+			</apex:outputPanel>
+			</apex:actionRegion>
+    	</apex:tab>
+
+	</apex:tabPanel>
+
+</apex:form>
+
+<script type="text/javascript">
+	var $jq = jQuery.noConflict(true);
+</script>
+</apex:page>

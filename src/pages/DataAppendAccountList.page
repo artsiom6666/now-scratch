@@ -1,0 +1,30 @@
+<apex:page standardController="Account" tabStyle="Account" recordSetVar="AllAccounts" extensions="DataAppendAccountListViewController" >
+    <apex:form >
+        <apex:sectionHeader title="{!$ObjectType.Account.Label}" subtitle="{!$ObjectType.Account.Label}" />
+        <apex:pageBlock title="Selected Accounts">
+            <apex:pageMessages />
+
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!init}" value="Confirm" rendered="{!selectedAccount.size > 0}"/>
+                <apex:commandButton action="{!returnToAccouts}" value="Cancel"/>
+            </apex:pageBlockButtons>
+
+            <apex:pageBlockTable value="{!AllAccounts}" var="acc" rendered="{!selectedAccount.size > 0}">
+                <apex:column value="{!acc.Name}"/>
+                <apex:column value="{!acc.BillingCity}"/>
+                <apex:column value="{!acc.Phone}"/>
+                <apex:column value="{!acc.OwnerId}"/>
+            </apex:pageBlockTable>
+
+            <apex:pageBlockSection rendered="{!selectedAccount.size > 0}">
+                <apex:outputPanel >
+                    Selected Accounts : {!selectedAccount.size}
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+
+            <apex:outputPanel rendered="{!selectedAccount.size == 0}">
+                No records to display
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

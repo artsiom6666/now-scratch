@@ -1,0 +1,24 @@
+<apex:page showHeader="false" sidebar="false" standardController="Account" extensions="DataAppendConfigurationController">
+
+    <body id="pageBody">
+        <script type="text/javascript">
+        (function (window) { // Prevent Cross-Frame Scripting attacks
+            if (window.location !== window.top.location)
+                document.getElementById('pageBody').style.display = "none";
+            })(this);
+        </script>
+
+        <apex:pageMessages />
+        <apex:form >
+            <apex:outputPanel id="emptyPanel"/>
+
+            <apex:actionFunction name="startDataAppendAF" action="{!startDataAppend}"/>
+
+            <script type="text/javascript">
+                window.onload = function() {
+                    startDataAppendAF();
+                }
+            </script>
+        </apex:form>
+    </body>
+</apex:page>

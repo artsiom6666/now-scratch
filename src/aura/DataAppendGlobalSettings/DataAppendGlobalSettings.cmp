@@ -1,0 +1,231 @@
+<aura:component controller="TouchCRAuraSettingsDAppendController" implements="force:appHostable,flexipage:availableForAllPageTypes" access="global" >
+	<aura:attribute name="settings" type="Object" default="{APIKey : '',
+                                                           AppendOnNewAccount : false,
+                                                           AppendOnNewLead : false,
+                                                           EmailOn : false,
+                                                           IgnoreOlderThan : '',
+                                                           License : '',
+                                                           ReappendOnDays : ''
+                                                           }"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+    <aura:attribute name="edit" type="Boolean" default="false" />
+    
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+	<aura:attribute name="textMessage" type="String"/>
+	<aura:attribute name="showErrorMessage" type="Boolean" default="false" />
+	<aura:attribute name="showSuccessMessage" type="Boolean" default="false" />
+    <aura:attribute name="showCancelMessage" type="Boolean" default="false" />
+    
+    
+    <aura:if isTrue="{!v.showSpinner}">
+		<div class="slds-spinner_container slds-show" aura:id="imgSpinner">
+			<div class="slds-spinner--brand slds-spinner slds-spinner--medium" role="alert" style="top: 200px; left: 50%;">
+				<span class="slds-assistive-text">Loading</span>
+				<div class="slds-spinner__dot-a"></div>
+				<div class="slds-spinner__dot-b"></div>
+			</div>
+		</div>
+	</aura:if>
+
+    <div id="tab-scoped-1" class="slds-tabs--scoped__content slds-show" role="tabpanel" aria-labelledby="tab-scoped-1__item">
+        <div class="container slds-p-top--medium" style="padding-top: 0px !important;">
+            <div class="container" style="width: 450px; margin: auto; padding-top: 0px !important;">
+                <div class="one_three">
+                </div>
+  
+                <form class="slds-form--stacked">
+                    <div class="field1" style="padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Append Email On</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.EmailOn}" onclick="{!c.changeCkeckbox}" id="EmailOn"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.EmailOn ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="field1" style="padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Append on new Account</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.AppendOnNewAccount}" onclick="{!c.changeCkeckbox}" id="AppendOnNewAccount"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.AppendOnNewAccount ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div style="margin-top: 20px; padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Append on new Leads</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.AppendOnNewLead}" onclick="{!c.changeCkeckbox}" id="AppendOnNewLead"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.AppendOnNewLead ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+
+                            </div>
+                        </label>
+                    </div>
+                    <div class="" style="margin-top: 20px; width: 210px; display: inline-block;">
+                        <label class="slds-checkbox--toggle slds-grid" style="width: 200px;">
+                            <div style="width: 200px;">
+                                <aura:if isTrue="{!v.edit}">
+                                    <ui:inputText aura:id="ReappendOnDays" label="Re-append on Days" class="field" value="{!v.settings.ReappendOnDays}"/>
+                                    <aura:set attribute="else">
+                                        <span style="width: 200px;">
+                                            <span class="slds-form-element__label slds-m-bottom--none">Re-append on Days</span>
+                                        </span>
+                                        <ui:inputText disabled="true" class="outputText" value="{!v.settings.ReappendOnDays}"/>
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="" style="margin-top: 20px; padding-left: 20px; width: 210px; display: inline-block;">
+                        <label class="slds-checkbox--toggle slds-grid" style="width: 200px;">
+                            <div style="width: 200px;">
+                                <aura:if isTrue="{!v.edit}">
+                                    <ui:inputDate aura:id="IgnoreOlderThan" label="Ignore data older than" class="field" value="{!v.settings.IgnoreOlderThan}" displayDatePicker="true"/>
+                                    <aura:set attribute="else">
+                                        <span style="width: 200px;">
+                                            <span class="slds-form-element__label slds-m-bottom--none">Ignore data older than</span>
+                                        </span>
+                                        <ui:inputDate disabled="true" class="outputText" value="{!v.settings.IgnoreOlderThan}" displayDatePicker="true"/>
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </label> 
+                    </div>
+                    <div  class="field1" style="margin-top: 20px; width: 210px; display: inline-block;">
+                        <label class="slds-checkbox--toggle slds-grid" style="width: 200px;">
+                            <div style="width: 200px;">
+                                <aura:if isTrue="{!v.edit}">
+                                    <ui:inputSecret aura:id="License" label="Tower Data License Key" class="field" value="{!v.settings.License}"/>
+                                    <aura:set attribute="else">
+                                        <span style="width: 200px;">
+                                            <span class="slds-form-element__label slds-m-bottom--none">Tower Data License Key</span>
+                                        </span>
+                                        <ui:inputSecret disabled="true" class="outputText" value="{!v.settings.License}" />
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="" style="margin-top: 20px; padding-left: 20px; width: 210px; display: inline-block;">
+                        <label class="slds-checkbox--toggle slds-grid" style="width: 200px;">
+                            <div style="width: 200px;">
+                                <aura:if isTrue="{!v.edit}">
+                                    <ui:inputSecret aura:id="APIKey" label="Tower Data Demographics Key" class="field" value="{!v.settings.APIKey}"/>
+                                    <aura:set attribute="else">
+                                        <span style="width: 200px;">
+                                            <span class="slds-form-element__label slds-m-bottom--none">Tower Data Demographics Key</span>
+                                        </span>
+                                        <ui:inputSecret disabled="true" class="outputText" value="{!v.settings.APIKey}" />
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </label>
+                    </div>                 
+                </form>
+                
+                <!--BUTTON SECTION-->
+                <div style="clear: left; padding-top: 20px;" class="one_three">
+                    <div class="btnInvoice" >
+                        <aura:if isTrue="{!v.edit}">
+                            <ui:button aura:id="saveButton" class="button" label="Save" press="{!c.saveSettings}"/>
+                            <ui:button aura:id="cancelButton" class="button" label="Cancel" press="{!c.cancel}"/>
+                            <aura:set attribute="else">
+                                <ui:button aura:id="editButton" class="button" label="Edit" press="{!c.edit}"/>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!--ERROR MESSAGE-->
+    <aura:if isTrue="{!v.showErrorMessage}">
+		<div class="slds-notify_container" style="top: 130px;">
+			<div class="slds-notify slds-notify--toast slds-theme--error" role="alert">
+				<span class="slds-assistive-text">Error</span>
+				<button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+					<lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+					<span class="slds-assistive-text">Close</span>
+				</button>
+				<div class="slds-notify__content slds-grid">
+					<lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+					<div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small">{!v.textMessage}</h2>
+					</div>
+				</div>
+			</div>
+		</div>
+	</aura:if>
+
+   <!--SUCCESS MESSAGE-->
+    <aura:if isTrue="{!v.showSuccessMessage}">
+		<div class="slds-notify_container" style="top: 130px;">
+			<div class="slds-notify slds-notify--toast slds-theme--success" role="alert">
+				<span class="slds-assistive-text">Success</span>
+				<button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+					<lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+					<span class="slds-assistive-text">Close</span>
+				</button>
+				<div class="slds-notify__content slds-grid">
+					<lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+					<div class="slds-col slds-align-middle" style="padding-left: 10px;">
+						<h2 class="slds-text-heading--small ">{!v.textMessage}</h2>
+					</div>
+				</div>
+			</div>
+		</div>
+    </aura:if>
+    
+    <!--CANCEL MESSAGE-->
+    <aura:if isTrue="{!v.showCancelMessage}">
+		<div aura:id="modal" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open">
+			<div class="slds-modal__container">
+				<div class="slds-modal__header">
+					<button class="slds-button slds-modal__close slds-button--icon-inverse" onclick="{!c.closeCancelMsgNo}">
+						<lightning:icon iconName="utility:close" size="medium" class="white-icon"/>
+						<span class="slds-assistive-text">Close</span>
+					</button>
+					<h2 id="header43" class="slds-text-heading--medium">Data Append Global Settings </h2>
+				</div>
+				<div class="slds-modal__content slds-p-around--medium">
+					<div>
+						<p>Are you sure you want to discard changes?</p>
+					</div>
+				</div>
+				<div class="slds-modal__footer">
+					<button class="slds-button slds-button--neutral" onclick="{!c.closeCancelMsgNo}">No</button>
+                    <button class="slds-button slds-button--brand" onclick="{!c.closeCancelMsgYes}">Yes</button>
+				</div>
+			</div>
+		</div>
+		<div aura:id="backdropModal" class="slds-backdrop slds-fade-in-open"></div>
+	</aura:if>
+</aura:component>

@@ -1,0 +1,151 @@
+<aura:component controller="TouchCRAuraSettingsController" implements="force:appHostable,flexipage:availableForAllPageTypes" access="global"  >
+
+    <aura:attribute name="endpoint" type="Object" default="{clientIdEndpoint : '', clientSecretEndpoint : ''}"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+    <aura:attribute name="edit" type="Boolean" default="false" />
+    <aura:attribute name="isLinked" type="String" default="Unlinked" />
+    
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+	<aura:attribute name="textMessage" type="String"/>
+	<aura:attribute name="showErrorMessage" type="Boolean" default="false" />
+	<aura:attribute name="showSuccessMessage" type="Boolean" default="false" />
+    <aura:attribute name="showUnlinkMessage" type="Boolean" default="false" />
+    
+    
+    <aura:if isTrue="{!v.showSpinner}">
+		<div class="slds-spinner_container slds-show" aura:id="imgSpinner">
+			<div class="slds-spinner--brand slds-spinner slds-spinner--medium" role="alert" style="top: 200px; left: 50%;">
+				<span class="slds-assistive-text">Loading</span>
+				<div class="slds-spinner__dot-a"></div>
+				<div class="slds-spinner__dot-b"></div>
+			</div>
+		</div>
+	</aura:if>
+
+    <div id="tab-scoped-1" class="slds-tabs--scoped__content slds-show" role="tabpanel" aria-labelledby="tab-scoped-1__item">
+        <div class="container slds-p-top--medium" style="padding-top: 0px !important;">
+            <div class="container" style="width: 450px; margin: auto; padding-top: 0px !important;">
+                <div class="one_three">
+                </div>
+                <aura:if isTrue="{!!v.edit}">
+                    <div style="padding-top: 20px; padding-left: 10px;">
+                        <div>
+                            <span class="slds-form-element__label slds-m-bottom--none">
+                                <span>Status </span>
+                            </span>
+                            {!v.isLinked}
+                        </div>
+                    </div>
+                </aura:if>
+                <form class="slds-form--stacked">
+                    <div style="padding-top: 20px;">
+                        <div class="field1" style="width: 210px;">
+                            <aura:if isTrue="{!v.edit}">
+                                <ui:inputSecret aura:id="clientIdEndpointId" required="true" label="API Key" class="field" value="{!v.endpoint.clientIdEndpoint}"/>
+                                <aura:set attribute="else">
+                                    <span style="width: 200px; text-align: left;">
+                                        <span class="slds-form-element__label slds-m-bottom--none">API Key</span>
+                                    </span>
+                                    <ui:inputSecret disabled="true" class="outputText" value="{!v.endpoint.clientIdEndpoint}" />
+                                </aura:set>
+                            </aura:if>
+                        </div>
+                        <div class="field1" style="padding-left: 20px; width: 210px;">
+                            <label class="slds-checkbox--toggle slds-grid" style="width: 300px;">
+                                <div style="width: 200px;">
+                                    <aura:if isTrue="{!v.edit}">
+                                       <ui:inputSecret aura:id="clientSecretEndpointId" required="true" label="API Key Secret" class="field" value="{!v.endpoint.clientSecretEndpoint}"/>
+                                        <aura:set attribute="else">
+                                            <span style="width: 200px;">
+                                                <span class="slds-form-element__label slds-m-bottom--none">API Key Secret</span>
+                                            </span>
+                                            <ui:inputSecret disabled="true" class="outputText" value="{!v.endpoint.clientSecretEndpoint}" />
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </label>
+                        </div>
+                    </div>                    
+                </form>
+                
+                <!--BUTTON SECTION-->
+                <div style="clear: left; padding-top: 20px;" class="one_three">
+                    <div class="btnInvoice" >
+                        <aura:if isTrue="{!v.edit}">
+                            <ui:button aura:id="linkButton" class="button" label="Link" press="{!c.linkOrg}"/>
+                            <ui:button aura:id="cancelButton" class="button" label="Cancel" press="{!c.cancel}"/>
+                            <aura:set attribute="else">
+                                <ui:button aura:id="editButton" class="button" label="{!v.isLinked == 'Linked' ? 'Unlink' : 'Link'}" press="{!c.edit}"/>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!--ERROR MESSAGE-->
+    <aura:if isTrue="{!v.showErrorMessage}">
+		<div class="slds-notify_container" style="top: 130px;">
+			<div class="slds-notify slds-notify--toast slds-theme--error" role="alert">
+				<span class="slds-assistive-text">Error</span>
+				<button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+					<lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+					<span class="slds-assistive-text">Close</span>
+				</button>
+				<div class="slds-notify__content slds-grid">
+					<lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+					<div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small">{!v.textMessage}</h2>
+					</div>
+				</div>
+			</div>
+		</div>
+	</aura:if>
+
+   <!--SUCCESS MESSAGE-->
+    <aura:if isTrue="{!v.showSuccessMessage}">
+		<div class="slds-notify_container" style="top: 130px;">
+			<div class="slds-notify slds-notify--toast slds-theme--success" role="alert">
+				<span class="slds-assistive-text">Success</span>
+				<button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+					<lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+					<span class="slds-assistive-text">Close</span>
+				</button>
+				<div class="slds-notify__content slds-grid">
+					<lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+					<div class="slds-col slds-align-middle" style="padding-left: 10px;">
+						<h2 class="slds-text-heading--small ">{!v.textMessage}</h2>
+					</div>
+				</div>
+			</div>
+		</div>
+    </aura:if>
+
+    <!--UNLINK MESSAGE-->
+    <aura:if isTrue="{!v.showUnlinkMessage}">
+		<div aura:id="modal" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open">
+			<div class="slds-modal__container">
+				<div class="slds-modal__header">
+					<button class="slds-button slds-modal__close slds-button--icon-inverse" onclick="{!c.cancel}">
+						<lightning:icon iconName="utility:close" size="medium" class="white-icon"/>
+						<span class="slds-assistive-text">Close</span>
+					</button>
+					<h2 id="header43" class="slds-text-heading--medium">Unlink </h2>
+				</div>
+				<div class="slds-modal__content slds-p-around--medium">
+					<div>
+						<p>Are you sure you want to unlink organization?</p>
+					</div>
+				</div>
+				<div class="slds-modal__footer">
+					<button class="slds-button slds-button--neutral" onclick="{!c.cancel}">Cancel</button>
+                    <button class="slds-button slds-button--brand" onclick="{!c.unlinkOrg}">Unlink</button>
+				</div>
+			</div>
+		</div>
+		<div aura:id="backdropModal" class="slds-backdrop slds-fade-in-open"></div>
+	</aura:if>
+</aura:component>

@@ -1,0 +1,55 @@
+<apex:page showHeader="false" sidebar="false" controller="VFFrictionlessController" >
+    
+    <apex:pageBlock title="FrictionLess Upsell">                  
+        <apex:includeScript value="/soap/ajax/34.0/connection.js"/>
+        <apex:includeScript value="/soap/ajax/34.0/apex.js"/>
+        <script>                       
+        function processOrder(){
+            
+            sforce.connection.sessionId = "{!GETSESSIONID()}";          
+            var offerId = "{!JSENCODE(offerId)}";
+        
+            /* First AJAX Call to init the order */
+            var orderResponse = sforce.apex.execute("VFFrictionlessController", "processOrder",{offerId:offerId,ip:null}); 
+                    
+            if(orderResponse == "fail"){
+                
+                var response = "Sorry! We are unable to process your order.";
+                
+            }else if(orderResponse == "invalidorder"){
+                
+                var response = "Sorry! You do not have any previous succesfull order to process this order.";
+                
+            }else{
+                
+                /* Second AJAX call to charge the order */
+                var parseData = JSON.parse(orderResponse);
+                var frequency = parseData.frequency;
+                var recurring = parseData.recurring;
+                var startDate = parseData.startDate;
+                var orderId = parseData.orderId;
+                var paymentResponse = sforce.apex.execute("VFFrictionlessController", "processPayment",{OrdFrequency:frequency, OrdRecurring:recurring, OrdStartDate:startDate, OrdOrderId:orderId});                       
+                   
+                if(paymentResponse == "true" ){
+                    
+                    var response = "Your order has been successfully placed.";
+                    
+                }else{
+                    
+                    var response = "Sorry! We can not process the payment.";
+                }            
+            }
+            console.log("Response: "+response);
+            document.getElementById('orderstatus').innerHTML = response;       
+            document.getElementById('loader_img').style.display = 'none';       
+        }
+        </script>
+        <div style="width:80%; text-align:center; margin:250px auto;">
+            <h2 id="orderstatus">  </h2> 
+            <!-- <apex:image id="loader_img" url="{!JSENCODE($Resource.loader)}" alt="loading" /> -->
+        </div>
+        <script>
+            processOrder();
+        </script> 
+    </apex:pageBlock>         
+</apex:page>

@@ -1,0 +1,100 @@
+<apex:page controller="PaymentAgentController" >
+	<apex:form >
+
+		<apex:actionStatus id="spinner">
+			<apex:facet name="start">
+				<div class="statusBox-layer">
+					<div class="statusBox-msgBox"></div>
+					<div class="statusBox-msg">
+						<img src="/img/loading.gif" />&nbsp;&nbsp;Please Wait...
+					</div>
+				</div>
+			</apex:facet>
+		</apex:actionStatus>
+
+		<apex:sectionHeader title="{!$ObjectType.Payment_Agents__c.Label}" subtitle="{!$ObjectType.Payment_Agents__c.Label}" />
+
+		<apex:pageBlock title="Payment Agents">
+			<apex:pageMessages />
+
+			<apex:pageBlockSection collapsible="false" columns="1" rendered="{!!newAndEditPanel}">
+				<apex:pageBlockTable value="{!activePayment}" var="wrap" rendered="{!activePayment.size > 0}">
+					<apex:column headerValue="Action" style="width: 15%;">
+						<apex:commandLink action="{!deletedPaymentAgent}" onclick="return confirm('Are you sure?');"> Del
+							<apex:param name="SelectedDel" value="{!wrap.Name}" assignTo="{!namePaymentAgent}"/>
+						</apex:commandLink>
+						<apex:outputText value=" | " />
+						<apex:commandLink action="{!editPaymentAgent}" > Edit
+							<apex:param name="SelectedEdit" value="{!wrap.Name}" assignTo="{!namePaymentAgent}"/>
+						</apex:commandLink>
+					</apex:column>
+					<apex:column headerValue="Name">
+						<div >
+							<apex:outputField value="{!wrap.Name}" />
+						</div>
+					</apex:column>
+					<apex:column headerValue="Merchant Security Key">
+						<div >
+							<apex:outputField value="{!wrap.Security_Key__c}" />
+						</div>
+					</apex:column>
+					<apex:column headerValue="Status">
+						<div >
+							<apex:outputField value="{!wrap.Active__c}" />
+						</div>
+					</apex:column>
+					<apex:column headerValue="Test Endpoint">
+						<div >
+							<apex:outputField value="{!wrap.Test_Endpoint__c}" />
+						</div>
+					</apex:column>
+				</apex:pageBlockTable>
+
+				<apex:outputPanel rendered="{!activePayment.size == 0}">
+					No records to display
+				</apex:outputPanel>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection columns="2" title="Information" collapsible="false" rendered="{!newAndEditPanel}">
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Name"/>
+					<apex:inputField value="{!newAgent.Name}"/>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Type"/>
+					<apex:selectList value="{!newAgent.Type__c}" size="1">
+						<apex:selectOptions value="{!allEntrypoints}"/>
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Merchant Security Key"/>
+					<apex:inputField value="{!newAgent.Security_Key__c}"/>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Active"/>
+					<apex:inputField value="{!newAgent.Active__c}"/>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Merchant ID"/>
+					<apex:inputField value="{!newAgent.Merchant_ID__c}"/>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Test Endpoint"/>
+					<apex:inputField value="{!newAgent.Test_Endpoint__c}"/>
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockButtons >
+				<apex:commandButton action="{!savePaymentAgent}" value="Save" status="spinner" rendered="{!newAndEditPanel}"/>
+				<apex:commandButton action="{!newPaymentAgent}" value="New" status="spinner" rendered="{!!newAndEditPanel}"/>
+				<apex:outputLink value="{!$Page.PaymentAgent}" rendered="{!newAndEditPanel}" styleClass="btn" style="text-decoration:none; padding:4px;">Cancel</apex:outputLink>
+			</apex:pageBlockButtons>
+		</apex:pageBlock>
+
+	</apex:form>
+</apex:page>

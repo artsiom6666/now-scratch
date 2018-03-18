@@ -1,0 +1,278 @@
+<aura:component controller="TouchCRAuraSettingsDAppendController" implements="force:appHostable,flexipage:availableForAllPageTypes" access="global" >
+    <aura:attribute name="settings" type="Object" default="{ValidateEmail : '',
+                                                           CorrectEmail : false,
+                                                           AppendNameAddress : false,
+                                                           EnableDemographics : false,
+                                                           EmailActivityMetrics : '',
+                                                           AppendDemographicBasics : '',
+                                                           AppendHousing : '',
+                                                           AppendInterest : '',
+                                                           AppendPurchase : ''
+                                                           }"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+    <aura:attribute name="edit" type="Boolean" default="false" />
+
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+    <aura:attribute name="textMessage" type="String"/>
+    <aura:attribute name="showErrorMessage" type="Boolean" default="false" />
+    <aura:attribute name="showSuccessMessage" type="Boolean" default="false" />
+    <aura:attribute name="showCancelMessage" type="Boolean" default="false" />
+
+
+    <aura:if isTrue="{!v.showSpinner}">
+        <div class="slds-spinner_container slds-show" aura:id="imgSpinner">
+            <div class="slds-spinner--brand slds-spinner slds-spinner--medium" role="alert" style="top: 200px; left: 50%;">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+
+    <div id="tab-scoped-1" class="slds-tabs--scoped__content slds-show" role="tabpanel" aria-labelledby="tab-scoped-1__item">
+        <div class="container slds-p-top--medium" style="padding-top: 0px !important;">
+            <div class="container" style="width: 450px; margin: auto; padding-top: 0px !important;">
+                <div class="one_three">
+                </div>
+
+                <form class="slds-form--stacked">
+                    <div class="field1" style="padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Validate Email on Account</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.ValidateEmail}" onclick="{!c.changeCkeckbox}" id="ValidateEmail"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.ValidateEmail ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="field1" style="padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Correct Email on Account</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.CorrectEmail}" onclick="{!c.changeCkeckbox}" id="CorrectEmail"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.CorrectEmail ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="field1" style="margin-top: 20px; padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Append Name &amp; Address on Account</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.AppendNameAddress}" onclick="{!c.changeCkeckbox}" id="AppendNameAddress"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.AppendNameAddress ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+
+                            </div>
+                        </label>
+                    </div>
+                    <div class="field1" style="margin-top: 20px; padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Enable Demographics on Account</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.EnableDemographics}" onclick="{!c.changeCkeckbox}" id="EnableDemographics"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.EnableDemographics ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="field1" style="margin-top: 20px; padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Email Activity Metrics on Account</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.EmailActivityMetrics}" onclick="{!c.changeCkeckbox}" id="EmailActivityMetrics"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.EmailActivityMetrics ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+
+                            </div>
+                        </label>
+                    </div>
+                    <div class="field1" style="margin-top: 20px; padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Append Demographic Basics on Account</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.AppendDemographicBasics}" onclick="{!c.changeCkeckbox}" id="AppendDemographicBasics"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.AppendDemographicBasics ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="field1" style="margin-top: 20px; padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Append Housing on Account</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.AppendHousing}" onclick="{!c.changeCkeckbox}" id="AppendHousing"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.AppendHousing ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+
+                            </div>
+                        </label>
+                    </div>
+                    <div class="field1" style="margin-top: 20px; padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Append Interest on Account</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.AppendInterest}" onclick="{!c.changeCkeckbox}" id="AppendInterest"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.AppendInterest ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="field1" style="margin-top: 20px; padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="width: 200px;">
+                                <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr;">
+                                    <label class="slds-checkbox--toggle slds-grid">
+                                        <span class="slds-form-element__label slds-m-bottom--none" style="width: 100px; text-align: center;">Append Purchase on Account</span>
+                                        <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" disabled="{!!v.edit}" checked="{!v.settings.AppendPurchase}" onclick="{!c.changeCkeckbox}" id="AppendPurchase"/>
+                                        <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                            <span class="slds-checkbox--faux" style="{!v.settings.AppendPurchase ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                            <span class="slds-checkbox--on">Active</span>
+                                            <span class="slds-checkbox--off">Disabled</span>
+                                        </span>
+                                    </label>
+                                </div>
+
+                            </div>
+                        </label>
+                    </div>
+                </form>
+
+                <!--BUTTON SECTION-->
+                <div style="clear: left; padding-top: 20px;" class="one_three">
+                    <div class="btnInvoice" >
+                        <aura:if isTrue="{!v.edit}">
+                            <ui:button aura:id="saveButton" class="button" label="Save" press="{!c.saveSettings}"/>
+                            <ui:button aura:id="cancelButton" class="button" label="Cancel" press="{!c.cancel}"/>
+                            <aura:set attribute="else">
+                                <ui:button aura:id="editButton" class="button" label="Edit" press="{!c.edit}"/>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--ERROR MESSAGE-->
+    <aura:if isTrue="{!v.showErrorMessage}">
+        <div class="slds-notify_container" style="top: 130px;">
+            <div class="slds-notify slds-notify--toast slds-theme--error" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+                    <lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-notify__content slds-grid">
+                    <lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+                    <div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small">{!v.textMessage}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+
+    <!--SUCCESS MESSAGE-->
+    <aura:if isTrue="{!v.showSuccessMessage}">
+        <div class="slds-notify_container" style="top: 130px;">
+            <div class="slds-notify slds-notify--toast slds-theme--success" role="alert">
+                <span class="slds-assistive-text">Success</span>
+                <button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+                    <lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-notify__content slds-grid">
+                    <lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+                    <div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small ">{!v.textMessage}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+
+    <!--CANCEL MESSAGE-->
+    <aura:if isTrue="{!v.showCancelMessage}">
+        <div aura:id="modal" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <button class="slds-button slds-modal__close slds-button--icon-inverse" onclick="{!c.closeCancelMsgNo}">
+                        <lightning:icon iconName="utility:close" size="medium" class="white-icon"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="header43" class="slds-text-heading--medium">Data Append Account Settings </h2>
+                </div>
+                <div class="slds-modal__content slds-p-around--medium">
+                    <div>
+                        <p>Are you sure you want to discard changes?</p>
+                    </div>
+                </div>
+                <div class="slds-modal__footer">
+                    <button class="slds-button slds-button--neutral" onclick="{!c.closeCancelMsgNo}">No</button>
+                    <button class="slds-button slds-button--brand" onclick="{!c.closeCancelMsgYes}">Yes</button>
+                </div>
+            </div>
+        </div>
+        <div aura:id="backdropModal" class="slds-backdrop slds-fade-in-open"></div>
+    </aura:if>
+</aura:component>

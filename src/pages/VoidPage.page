@@ -1,0 +1,10 @@
+<apex:page standardController="Order_Transaction__c" extensions="VoidController">
+	<apex:form >
+		<apex:actionFunction name="voidTransactionNowAF" action="{!voidTransactionNow}"/>
+		<script type="text/javascript">
+			window.onload = function() {
+				voidTransactionNowAF();
+			}
+		</script>
+	</apex:form>
+</apex:page>

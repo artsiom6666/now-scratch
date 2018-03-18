@@ -1,0 +1,323 @@
+<aura:component implements="force:appHostable,force:lightningQuickAction,force:hasRecordId" controller="PushNotificationController">
+    <aura:attribute name="allAccounts" type="List" default="[]"/>
+    <aura:attribute name="availableAccounts" type="List" default="[]"/>
+    <aura:attribute name="chosenAccounts" type="List" default="[]"/>
+    <aura:attribute name="availableTopics" type="List" default="[]"/>
+    <aura:attribute name="topic" type="String" />
+    <aura:attribute name="availableEnvironments" type="List" default="[]"/>
+    <aura:attribute name="environments" type="List" default="[]"/>
+    <aura:attribute name="topicName" type="String" />
+    <aura:attribute name="title" type="String" />
+    <aura:attribute name="body" type="String" />
+    <aura:attribute name="isAll" type="Boolean" default="false" />
+    <aura:attribute name="isParticular" type="Boolean" default="false" />
+    <aura:attribute name="searchTerm" type="String" />
+    <aura:attribute name="isSaveTopic" type="Boolean" default="false" />
+    <aura:attribute name="icon" type="String" />
+    <aura:attribute name="icons" type="List" default="[]" />
+    <aura:attribute name="clickAction" type="String" />
+    <aura:attribute name="clickActions" type="List" default="[]" />
+    <aura:attribute name="clickAction2SaveName" type="String" />
+    <aura:attribute name="clickAction2SaveLink" type="String" />
+
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+    <aura:attribute name="textMessage" type="String" default="null"/>
+    <aura:attribute name="showErrorMessage" type="Boolean" default="false" />
+    <aura:attribute name="showSuccessMessage" type="Boolean" default="false" />
+    <aura:attribute name="showConfirmMessage" type="Boolean" default="false" />
+    <aura:attribute name="showUploadIcon" type="Boolean" default="false" />
+    <aura:attribute name="showAddAction" type="Boolean" default="false" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.initialize}"/>
+
+    <aura:if isTrue="{!or(v.recordId == null, v.recordId == 'undefined')}">
+        <div class="slds-page-header">
+            <div class="slds-media">
+                <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-standard-email" title="Push Notification">
+                        <lightning:icon iconName="action:email" size="small" alternativeText="Push Notification"/>
+                    </span>
+                </div>
+                <div class="slds-media__body">
+                    <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="Push Notification">Send Push Notification</h1>
+                    <p class="slds-text-body_small slds-line-height_reset">Notify consumers about whatever you need</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-position"><br/></div>
+    </aura:if>
+
+    <lightning:card >
+        <aura:set attribute="title">
+            <aura:if isTrue="{!or(v.recordId == null, v.recordId == 'undefined')}">
+                Chose Recipients
+            </aura:if>
+        </aura:set>
+        <aura:if isTrue="{!v.showSpinner}">
+            <lightning:spinner variant="brand" size="large"/>
+        </aura:if>
+
+        <div class="card-position" id="link_topicName" aura:id="link_topicName">
+
+            <aura:if isTrue="{!v.edit}">
+
+                <lightning:input label="Topic Name" name="topicName" class="field-position field-width" value="{!v.topicName}"/>
+
+                <aura:set attribute="else">
+                    <label class="slds-form-element__label"><span>Devices</span></label>
+                    <aura:iteration items="{!v.availableEnvironments}" var="environment">
+                        <lightning:input name="device"
+                                         type="checkbox"
+                                         label="{!environment.label}"
+                                         value="{!environment.value}"
+                                         onchange="{!c.onCheckDevice}"/>
+                    </aura:iteration>
+                    <aura:if isTrue="{!or(v.recordId == null, v.recordId == 'undefined')}">
+                        <lightning:select aura:id="selectTopic"
+                                          label="Topic" name="topic"
+                                          class="field-position field-width"
+                                          value="{!v.topic}"
+                                          onchange="{!c.getTopicsInfo}">
+                            <option value="null" text="-- None --"></option>
+                            <aura:iteration items="{!v.availableTopics}" var="topic">
+                                <option value="{!topic.value}" text="{!topic.label}"></option>
+                            </aura:iteration>
+                        </lightning:select>
+                    </aura:if>
+                </aura:set>
+            </aura:if>
+            <aura:if isTrue="{!v.recordId == null}">
+                <div class="field-position">
+                    <label class="slds-form-element__label"><span>Accounts</span></label>
+                    <lightning:input name="isAll"
+                                     aura:id="isAll"
+                                     type="checkbox"
+                                     label="Send to All"
+                                     value="{!v.isAll}"
+                                     onchange="{!c.onCheckAccount}"
+                                     checked="{!v.isAll ? true : false}"/>
+
+                    <lightning:input name="isParticular"
+                                     aura:id="isParticular"
+                                     type="checkbox"
+                                     label="Send to Particular"
+                                     value="{!v.isParticular}"
+                                     onchange="{!c.onCheckAccount}"
+                                     checked="{!v.isParticular ? true : false}"/>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!and(v.recordId == null, v.isParticular)}">
+
+                <div class="field-position">
+                    <lightning:input name="search"
+                                     type="text"
+                                     label="Search"
+                                     value="{!v.searchTerm}"
+                                     onchange="{!c.getAccounts}"
+                                     class="field-position field-width"/>
+                </div>
+                <div class="field-position">
+                    <lightning:dualListbox aura:id="selectOptions" name="Send to" label=" "
+                                           sourceLabel="Available Accounts"
+                                           selectedLabel="Selected Accounts"
+                                           options="{!v.availableAccounts}"
+                                           value="{!v.chosenAccounts}"
+                                           onchange="{!c.handleChangeTopic}"/>
+                </div>
+            </aura:if>
+        </div>
+
+    </lightning:card>
+
+    <div class="card-position"><br/></div>
+
+    <lightning:card >
+        <aura:set attribute="title">Create Notification</aura:set>
+        <aura:set attribute="actions">
+            <lightning:button label="Send"
+                              iconName="utility:push"
+                              iconPosition="left" variant="brand"
+                              onclick="{!c.send}"
+                              class="field-position button-position"/>
+        </aura:set>
+        <aura:if isTrue="{!v.showSpinner}">
+            <lightning:spinner variant="brand" size="large"/>
+        </aura:if>
+        <div class="card-position">
+            <aura:if isTrue="{!or(v.recordId == null, v.recordId == 'undefined')}">
+                <lightning:input name="saveTopic"
+                                 aura:id="isSaveTopic"
+                                 type="checkbox"
+                                 label="Save as Topic"
+                                 value="{!v.isSaveTopic}"
+                                 onchange="{!c.onSaveTopic}"
+                                 checked="{!v.isSaveTopic ? true : false}"/>
+            </aura:if>
+
+            <lightning:input label="Title"
+                             name="title"
+                             class="field-position field-width label-font"
+                             value="{!v.title}"/>
+
+            <div class="field-position">
+                <lightning:select aura:id="selectIcon"
+                                  label="Select an Icon or Upload a New One"
+                                  name="icon"
+                                  class="field-position field-width label-font input-float"
+                                  value="{!v.icon}">
+                    <option value="null" text="-- None --"></option>
+                    <aura:iteration items="{!v.icons}" var="icon">
+                        <option value="{!icon.value}" text="{!icon.label}"></option>
+                    </aura:iteration>
+                </lightning:select>
+
+                <span class="{!v.showUploadIcon ? 'element-hide' : 'element-show'}">
+                    <span class="slds-icon_container slds-icon-utility-add add-icon" onclick="{!c.showUploadIcon}">
+                        <lightning:icon iconName="utility:add" size="small" alternativeText="Upload New Icon" />
+                    </span>
+                </span>
+                <span class="{!v.showUploadIcon ? 'element-show' : 'element-hide'}">
+
+                    <span class="slds-icon_container slds-icon-utility-rotate add-icon" onclick="{!c.getIcons}">
+                        <lightning:icon iconName="utility:rotate" size="small" alternativeText="Refresh" />
+                    </span>
+                </span>
+                <!--<span class="{!v.showUploadIcon ? 'element-show' : 'element-hide'}">-->
+
+                    <!--<span class="slds-icon_container slds-icon-utility-add add-icon" onclick="{!c.hideUploadIcon}">-->
+                        <!--<lightning:icon iconName="utility:close" size="small" alternativeText="Cancel" />-->
+                    <!--</span>-->
+                <!--</span>-->
+
+                <!--<div class="{!v.showUploadIcon ?'field-position element-show' :'field-position element-hide'}">-->
+                    <!--<lightning:fileUpload label="Attach receipt"-->
+                                          <!--multiple="false"-->
+                                          <!--accept=".png"-->
+                                          <!--recordId="{!v.iconId}"-->
+                                          <!--onuploadfinished="{!c.handleUploadFinished}" />-->
+
+                    <!--<lightning:input type="file" label="Upload Icon" name="icon" accept="image/png" class="field-position field-width input-float"/>-->
+                    <!--<lightning:button label="Save" onclick="{!c.saveIcon}" class="field-position button-position save-btn"/>-->
+                <!--</div>-->
+            </div>
+
+            <div class="field-position">
+                <img class="{!v.icon != 'null' ? 'image-size element-show' : 'image-size element-hide'}"
+                     src="{!'/servlet/servlet.FileDownload?file=' + v.icon}"/>
+            </div>
+
+
+            <div class="field-position">
+                <lightning:select aura:id="selectImage"
+                                  label="Select a Click Action or Create a New One"
+                                  name="image"
+                                  class="field-position field-width label-font input-float"
+                                  value="{!v.clickAction}">
+                    <option value="null" text="-- None --"></option>
+                    <aura:iteration items="{!v.clickActions}" var="clickAction">
+                        <option value="{!clickAction.value}" text="{!clickAction.label}"></option>
+                    </aura:iteration>
+                </lightning:select>
+
+                <span class="{!v.showAddAction ? 'element-hide' : 'element-show'}">
+
+                    <span class="slds-icon_container slds-icon-utility-add add-icon" onclick="{!c.showAddAction}">
+                        <lightning:icon iconName="utility:add" size="small" alternativeText="Add New Action"/>
+                    </span>
+                </span>
+                <span class="{!v.showAddAction ? 'element-show' : 'element-hide'}">
+
+                    <span class="slds-icon_container slds-icon-utility-add add-icon" onclick="{!c.hideAddAction}">
+                        <lightning:icon iconName="utility:close" size="small" alternativeText="Cancel" />
+                    </span>
+                </span>
+
+                <div class="{!v.showAddAction ?
+                        'field-position element-show' :
+                        'field-position element-hide'}">
+                    <lightning:input label="Click Action Name"
+                                     name="clickActionName"
+                                     class="field-position field-width label-font"
+                                     value="{!v.clickAction2SaveName}"/>
+                    <lightning:input label="Click Action Link"
+                                     name="clickActionLink"
+                                     class="field-position field-width label-font input-float"
+                                     value="{!v.clickAction2SaveLink}"/>
+                    <lightning:button label="Save"
+                                      onclick="{!c.saveClickAction}"
+                                      class="field-position button-position save-btn"/>
+                </div>
+            </div>
+
+            <div class="field-position">
+                <ui:inputTextArea value="{!v.body}" label="Body" class="field-position field-height"/>
+            </div>
+        </div>
+
+    </lightning:card>
+
+    <!--ERROR MESSAGE-->
+    <aura:if isTrue="{!v.showErrorMessage}">
+        <div class="slds-notify_container" style="top: 130px;">
+            <div class="slds-notify slds-notify--toast slds-theme--error" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+                    <lightning:icon iconName="utility:close" size="small" class="color-icon-alert white-icon"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-notify__content slds-grid">
+                    <lightning:icon iconName="utility:notification" size="small" class="color-icon-alert white-icon"/>
+                    <div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small">{!v.textMessage}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+
+    <!--SUCCESS MESSAGE-->
+    <aura:if isTrue="{!v.showSuccessMessage}">
+        <div class="slds-notify_container" style="top: 130px;">
+            <div class="slds-notify slds-notify--toast slds-theme--success" role="alert">
+                <span class="slds-assistive-text">Success</span>
+                <button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+                    <lightning:icon iconName="utility:close" size="small" class="color-icon-alert white-icon" />
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-notify__content slds-grid">
+                    <lightning:icon iconName="utility:notification" size="small" class="color-icon-alert white-icon"/>
+                    <div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small ">{!v.textMessage}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+
+    <!--CONFIRM MESSAGE-->
+    <aura:if isTrue="{!v.showConfirmMessage}">
+        <div aura:id="modal" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <button class="slds-button slds-modal__close slds-button--icon-inverse" onclick="{!c.closeConfirmMsgCancel}">
+                        <lightning:icon iconName="utility:close" size="medium" class="white-icon"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="header43" class="slds-text-heading--medium">Send Push Notifications </h2>
+                </div>
+                <div class="slds-modal__content slds-p-around--medium">
+                    <div>
+                        <p>To send push notification to more than thousand recipients you have to create Topic or select an existing one. Would you like to create topic automatically with name from Title? </p>
+                    </div>
+                </div>
+                <div class="slds-modal__footer">
+                    <button class="slds-button slds-button--neutral" onclick="{!c.closeConfirmMsgCancel}">Cancel</button>
+                    <button class="slds-button slds-button--brand" onclick="{!c.closeConfirmMsgNo}">No, Create New Topic</button>
+                    <button class="slds-button slds-button--brand" onclick="{!c.closeConfirmMsgYes}">Yes</button>
+                </div>
+            </div>
+        </div>
+        <div aura:id="backdropModal" class="slds-backdrop slds-fade-in-open"></div>
+    </aura:if>
+
+</aura:component>

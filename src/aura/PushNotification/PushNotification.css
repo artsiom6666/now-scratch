@@ -1,0 +1,53 @@
+.THIS .card-position {
+    margin-top: 15px;
+    padding: 0px 15px 0px 15px;
+}
+.THIS .field-position {
+    margin-top: 10px;
+}
+.THIS .button-container {
+    text-align: right;
+    clear: left;
+}
+.THIS .white-icon svg{
+    fill: rgb(224, 229, 238);
+}
+.THIS .white-icon svg:hover{
+    fill: rgb(0, 112, 210);
+}
+.THIS.slds-modal .white-icon svg{
+    fill: white;
+}
+.THIS .field-width {
+    max-width: 560px;
+}
+.THIS .field-height input {
+    min-height: 100px;
+}
+.THIS .label-font {
+    font-size: .8125rem;
+}
+.THIS .input-float div div{
+    float: left;
+}
+.THIS .input-float div input{
+    float: left;
+}
+.THIS .add-icon {
+   margin: 4px 0px 0px 15px;
+}
+.THIS .save-btn {
+   margin: 0px 0px 0px 15px;
+}
+.THIS .add-icon :hover {
+   cursor: pointer;
+}
+.THIS .element-hide {
+   display: none;
+}
+.THIS .element-show {
+   display: block;
+}
+.THIS .image-size {
+   max-height: 150px;
+}

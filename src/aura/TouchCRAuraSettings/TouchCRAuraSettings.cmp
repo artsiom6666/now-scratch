@@ -1,0 +1,176 @@
+<aura:component controller="TouchCRAuraSettingsController" implements="force:appHostable,flexipage:availableForAllPageTypes" access="global" >
+
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:attribute name="isAbleMinfraud" type="Boolean" default="false" />
+	<aura:attribute name="isAbleUsps" type="Boolean" default="false" />
+	<aura:attribute name="isAbleDataAppend" type="Boolean" default="false" />
+	<aura:attribute name="isAbleFullContact" type="Boolean" default="false" />
+	<aura:attribute name="isAbleAffiliate" type="Boolean" default="false" />
+<!--    <aura:attribute name="isAbleFranchisee" type="Boolean" default="false" />-->
+
+	<div class="AuraSettings">
+		<lightning:tabset >
+				<lightning:tab label="TouchCR Settings">
+					<div aura:id="Franchisee" class="{!v.isAbleFranchisee ? 'slds-show' : 'slds-hide'}">
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Stripe Connect</p>
+						</div>
+						<c:StripeConnectSettings />
+					</div>
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Community selection and Brands for RFM calculation</p>
+						</div>
+						<c:PaymentAgentBrandSelection />
+					</div>
+
+					<div class="{!v.isAbleMinfraud ? 'slds-show' : 'slds-hide'}">
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>MinFraud API Credential</p>
+						</div>
+						<c:MinFraudSettings />
+					</div>
+
+					<div class="{!v.isAbleUsps ? 'slds-show InlineSettingTabs' : 'slds-hide InlineSettingTabs'}" style="margin-right: 5px;">
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>USPS Settings</p>
+						</div>
+						<c:UspsSettings />
+					</div>
+
+					<div class="InlineSettingTabs" style="margin-right: 5px;">
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Trigger Settings</p>
+						</div>
+						<c:TriggerSettings />
+					</div>
+
+					<div class="InlineSettingTabs">
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Proxy Settings</p>
+						</div>
+						<c:ProxySettings />
+					</div>
+
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>RFM Score Brand Batch Settings
+							</p>
+						</div>
+						<c:RfmScoreBrandBatch />
+					</div>
+
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>RFM Score Batch Settings</p>
+						</div>
+						<c:RfmScoreBatchSettings />
+					</div>
+
+					<div class="{!v.isAbleDataAppend ? 'slds-show' : 'slds-hide'}">
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Data Append Batch Settings</p>
+						</div>
+						<c:DaBatchSettings />
+					</div>
+
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Campaign Member Batch Settings</p>
+						</div>
+						<c:CampaignMemberSetitngs />
+					</div>
+
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>House Cleaner Batch Settings</p>
+						</div>
+						<c:HouseCleanerSettings />
+					</div>
+
+<!--                    <div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>FullContact Batch Settings</p>
+						</div>
+						<c:FullContactBatchSettings />
+					</div>
+					
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Refund Period Batch Settings</p>
+						</div>
+						<c:RefundPeriodSetting />
+					</div>-->
+					
+				</lightning:tab>
+			<div aura:id="dataAppend" class="{!v.isAbleDataAppend ? 'slds-show' : 'slds-hide'}">
+				<lightning:tab label="Data Append">
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Global Settings</p>
+						</div>
+						<c:DataAppendGlobalSettings />
+					</div>
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Lead Conversion Settings</p>
+						</div>
+						<c:DataAppendLeadConversionSettings />
+					</div>
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Account Settings</p>
+						</div>
+						<c:DataAppendAccountSettings />
+					</div>
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Lead Settings</p>
+						</div>
+						<c:DataAppendLeadSettings />
+					</div>
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Approved Settings</p>
+						</div>
+						<c:DataAppendApprovedSettings />
+					</div>
+				</lightning:tab>
+			</div>
+<!--            <div aura:id="fullContact" class="{!v.isAbleFullContact ? 'slds-show' : 'slds-hide'}">
+				<lightning:tab label="FullContact">
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>FullContact Settings</p>
+						</div>
+						<c:FullContactSettings />
+					</div>
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Approved Settings</p>
+						</div>
+						<c:FullContactApprovedSettings />
+					</div>
+				</lightning:tab>
+			</div>-->
+			<div aura:id="Affiliate" class="{!v.isAbleAffiliate ? 'slds-show' : 'slds-hide'}">
+				<lightning:tab label="Affiliate">
+					<div>
+						<div class="SettingTab CheckboxSettingTabs">
+							<p>Refund Period Batch Settings</p>
+						</div>
+						<c:RefundPeriodSetting />
+					</div>
+				</lightning:tab>
+			</div>
+			<lightning:tab label="TouchCR Endpoint">
+				<div>
+					<div class="SettingTab CheckboxSettingTabs">
+						<p>TouchCR Endpoint Settings</p>
+					</div>
+					<c:Link_Unlink />
+				</div>
+			</lightning:tab>
+		</lightning:tabset>
+	</div>
+</aura:component>

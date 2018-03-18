@@ -1,0 +1,10 @@
+<apex:page standardController="Order_Transaction__c" extensions="RefundController">
+	<apex:form >
+	   <apex:actionFunction name="refundNowAF" action="{!refundNow}"/>
+		<script type="text/javascript">
+			window.onload = function() {
+				refundNowAF();
+			}
+		</script>
+	</apex:form>
+</apex:page>

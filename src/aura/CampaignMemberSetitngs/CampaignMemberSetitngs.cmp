@@ -1,0 +1,197 @@
+<aura:component controller="TouchCRAuraSettingsBatchesController" implements="force:appHostable,flexipage:availableForAllPageTypes" access="global" >
+    <aura:attribute name="settings" type="Object" default="{selectedStateCampaignMember : 'Off',
+                                                           selectedExecuteAtCampaignMemberDay : '1',
+                                                           selectedExecuteAtCampaignMember : '0'}"/>
+
+    <aura:attribute name="timeScheduleJob" type="Object" default="{nextRunTime : ''}"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+    <aura:attribute name="edit" type="Boolean" default="false" />
+
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+    <aura:attribute name="textMessage" type="String"/>
+    <aura:attribute name="showErrorMessage" type="Boolean" default="false" />
+    <aura:attribute name="showSuccessMessage" type="Boolean" default="false" />
+    <aura:attribute name="showCancelMessage" type="Boolean" default="false" />
+
+
+    <aura:if isTrue="{!v.showSpinner}">
+        <div class="slds-spinner_container slds-show" aura:id="imgSpinner">
+            <div class="slds-spinner-- slds-spinner slds-spinner--medium" role="alert" style="top: 200px; left: 50%;">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+
+    <div class="slds-tabs--scoped__content slds-show">
+        <div class="container slds-p-top--medium" style="padding-top: 0px !important;">
+            <div class="container" style="width: 450px; margin: auto; padding-top: 0px !important;">
+                <div class="one_three">
+                </div>
+
+                <form class="slds-form--stacked">
+                    <div style="margin-top: 20px; padding-left: 20px; width: 210px; display: inline-block;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="display: table-cell; width: 43%;">
+                                <div class="field1" style="min-width: 130px; width: 95%; padding-bottom: 25px;">
+                                    <ui:inputSelect disabled="{!!v.edit}" value="{!v.settings.selectedStateCampaignMember}" label="State" class="dynamic select-style" aura:id="inputState" >
+                                        <ui:inputSelectOption text="" label="None"/>
+                                        <ui:inputSelectOption text="Off" label="Off"/>
+                                        <ui:inputSelectOption text="On" label="On"/>
+                                    </ui:inputSelect>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div style="margin-top: 20px; padding-left: 20px; width: 210px; display: inline-block;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="display: table-cell; width: 43%;">
+                                <div class="field1" style="min-width: 130px; width: 95%; padding-bottom: 25px;">
+                                    <ui:inputSelect disabled="{!!v.edit}" value="{!v.settings.selectedExecuteAtCampaignMemberDay}" label="Every" class="dynamic select-style" aura:id="inputDays" >
+                                        <ui:inputSelectOption text="" label="None"/>
+                                        <ui:inputSelectOption text="1" label="1 day"/>
+                                        <ui:inputSelectOption text="2" label="2 days"/>
+                                        <ui:inputSelectOption text="3" label="3 days"/>
+                                        <ui:inputSelectOption text="4" label="4 days"/>
+                                        <ui:inputSelectOption text="5" label="5 days"/>
+                                        <ui:inputSelectOption text="6" label="6 days"/>
+                                        <ui:inputSelectOption text="7" label="7 days"/>
+                                    </ui:inputSelect>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="field1" style="padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="display: table-cell; width: 43%;">
+                                <div class="field1" style="min-width: 130px; width: 95%; padding-bottom: 25px;">
+                                    <ui:inputSelect disabled="{!!v.edit}" value="{!v.settings.selectedExecuteAtCampaignMember}" label="Execute At" class="dynamic select-style" aura:id="inputHours" >
+                                        <ui:inputSelectOption text="" label="None"/>
+                                        <ui:inputSelectOption text="0" label="12:00 AM"/>
+                                        <ui:inputSelectOption text="1" label="1:00 AM"/>
+                                        <ui:inputSelectOption text="2" label="2:00 AM"/>
+                                        <ui:inputSelectOption text="3" label="3:00 AM"/>
+                                        <ui:inputSelectOption text="4" label="4:00 AM"/>
+                                        <ui:inputSelectOption text="5" label="5:00 AM"/>
+                                        <ui:inputSelectOption text="6" label="6:00 AM"/>
+                                        <ui:inputSelectOption text="7" label="7:00 AM"/>
+                                        <ui:inputSelectOption text="8" label="8:00 AM"/>
+                                        <ui:inputSelectOption text="9" label="9:00 AM"/>
+                                        <ui:inputSelectOption text="10" label="10:00 AM"/>
+                                        <ui:inputSelectOption text="11" label="11:00 AM"/>
+                                        <ui:inputSelectOption text="12" label="12:00 PM"/>
+                                        <ui:inputSelectOption text="13" label="1:00 PM"/>
+                                        <ui:inputSelectOption text="14" label="2:00 PM"/>
+                                        <ui:inputSelectOption text="15" label="3:00 PM"/>
+                                        <ui:inputSelectOption text="16" label="4:00 PM"/>
+                                        <ui:inputSelectOption text="17" label="5:00 PM"/>
+                                        <ui:inputSelectOption text="18" label="6:00 PM"/>
+                                        <ui:inputSelectOption text="19" label="7:00 PM"/>
+                                        <ui:inputSelectOption text="20" label="8:00 PM"/>
+                                        <ui:inputSelectOption text="21" label="9:00 PM"/>
+                                        <ui:inputSelectOption text="22" label="10:00 PM"/>
+                                        <ui:inputSelectOption text="23" label="11:00 PM"/>
+                                    </ui:inputSelect>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="field1" style="padding-left: 20px; width: 210px;">
+                        <label class="slds-checkbox--toggle slds-grid">
+                            <div style="display: table-cell; width: 43%;">
+                                <div class="field1" style="min-width: 130px; width: 95%; padding-bottom: 25px;">
+                                    <aura:if isTrue="{!!v.edit}">
+                                        <span style="width: 200px;">
+                                            <span class="slds-form-element__label slds-m-bottom--none">Next Scheduled Run</span>
+                                        </span>
+                                            {!v.timeScheduleJob.nextRunTime}
+                                    </aura:if>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </form>
+
+                <!--BUTTON SECTION-->
+                <div style="clear: left; padding-top: 20px;" class="one_three">
+                    <div class="btnInvoice" >
+                        <aura:if isTrue="{!v.edit}">
+                            <ui:button aura:id="saveButton" class="button" label="Save" press="{!c.saveSettings}"/>
+                            <ui:button aura:id="cancelButton" class="button" label="Cancel" press="{!c.cancel}"/>
+                            <aura:set attribute="else">
+                                <ui:button aura:id="executeButton" class="button" label="Execute Now" press="{!c.executeNow}"/>
+                                <ui:button aura:id="editButton" class="button" label="Edit" press="{!c.edit}"/>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--ERROR MESSAGE-->
+    <aura:if isTrue="{!v.showErrorMessage}">
+        <div class="slds-notify_container" style="top: 130px;">
+            <div class="slds-notify slds-notify--toast slds-theme--error" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+                    <lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-notify__content slds-grid">
+                    <lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+                    <div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small">{!v.textMessage}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+
+    <!--SUCCESS MESSAGE-->
+    <aura:if isTrue="{!v.showSuccessMessage}">
+        <div class="slds-notify_container" style="top: 130px;">
+            <div class="slds-notify slds-notify--toast slds-theme--success" role="alert">
+                <span class="slds-assistive-text">Success</span>
+                <button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+                    <lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-notify__content slds-grid">
+                    <lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+                    <div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small ">{!v.textMessage}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+
+    <!--CANCEL MESSAGE-->
+    <aura:if isTrue="{!v.showCancelMessage}">
+        <div aura:id="modal" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <button class="slds-button slds-modal__close slds-button--icon-inverse" onclick="{!c.closeCancelMsgNo}">
+                        <lightning:icon iconName="utility:close" size="medium" class="white-icon"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="header43" class="slds-text-heading--medium">Campaign Member Settings </h2>
+                </div>
+                <div class="slds-modal__content slds-p-around--medium">
+                    <div>
+                        <p>Are you sure you want to discard changes?</p>
+                    </div>
+                </div>
+                <div class="slds-modal__footer">
+                    <button class="slds-button slds-button--neutral" onclick="{!c.closeCancelMsgNo}">No</button>
+                    <button class="slds-button slds-button--brand" onclick="{!c.closeCancelMsgYes}">Yes</button>
+                </div>
+            </div>
+        </div>
+        <div aura:id="backdropModal" class="slds-backdrop slds-fade-in-open"></div>
+    </aura:if>
+</aura:component>

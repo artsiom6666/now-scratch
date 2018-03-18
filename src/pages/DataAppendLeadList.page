@@ -1,0 +1,29 @@
+<apex:page standardController="Lead" tabStyle="Lead" recordSetVar="AllLeads" extensions="DataAppendLeadListViewController" >
+    <apex:form >
+        <apex:sectionHeader title="{!$ObjectType.Lead.Label}" subtitle="{!$ObjectType.Lead.Label}" />
+        <apex:pageBlock title="Selected Leads">
+            <apex:pageMessages />
+
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!init}" value="Confirm" rendered="{!selectedLead.size > 0}"/>
+                <apex:commandButton action="{!returnToLeads}" value="Cancel"/>
+            </apex:pageBlockButtons>
+
+            <apex:pageBlockTable value="{!AllLeads}" var="item" rendered="{!selectedLead.size > 0}">
+                <apex:column value="{!item.Name}"/>
+                <apex:column value="{!item.Phone}"/>
+                <apex:column value="{!item.OwnerId}"/>
+            </apex:pageBlockTable>
+
+            <apex:pageBlockSection rendered="{!selectedLead.size > 0}">
+                <apex:outputPanel >
+                    Selected Leads : {!selectedLead.size}
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+
+            <apex:outputPanel rendered="{!selectedLead.size == 0}">
+                No records to display
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

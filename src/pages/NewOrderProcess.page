@@ -1,0 +1,721 @@
+<apex:page standardController="Account" extensions="NewOrderProcessController" title="New Order" tabStyle="Order__c" docType="html-5.0">
+<apex:includeScript value="{!URLFOR($Resource.validation,'validation/jquery-1.8.2.min.js')}"/>
+		<style>
+			div.productlist {
+				margin: 15px;
+			}
+			.category a, .category a:hover, .product a, .product a:hover {
+				text-decoration: none;
+				font-weight: bold;
+			}
+			.node.category, .node.product, .node.variant {
+				padding: 3px 0px;
+			}
+			.node {
+				clear: both;
+			}
+			.node.variant {
+				min-width: 60%;
+				width: 80%
+			}
+			.node .namefield {
+				float: left;
+				width: 30%;
+			}
+			.node .pricefield {
+				float: right;
+			}
+			.node .countfield {
+				float: right;
+				margin-left: 40px;
+			}
+			/*LEVEL 0*/
+			.level-0.category>.namefield {
+				margin-left: 0px;
+			}
+			.level-0.product>.namefield {
+				margin-left: 20px;
+			}
+			.level-0.variant>.namefield {
+				margin-left: 40px;
+			}
+			/*LEVEL 1*/
+			.level-1.category>.namefield {
+				margin-left: 20px;
+			}
+			.level-1.product>.namefield {
+				margin-left: 40px;
+			}
+			.level-1.variant>.namefield {
+				margin-left: 60px;
+			}
+			/*LEVEL 2*/
+			.level-2.category>.namefield {
+				margin-left: 40px;
+			}
+			.level-2.product>.namefield {
+				margin-left: 60px;
+			}
+			.level-2.variant>.namefield {
+				margin-left: 80px;
+			}
+			/*LEVEL 3*/
+			.level-3.category>.namefield {
+				margin-left: 60px;
+			}
+			.level-3.product>.namefield {
+				margin-left: 80px;
+			}
+			.level-3.variant>.namefield {
+				margin-left: 100px;
+			}
+			/*LEVEL 4*/
+			.level-4.category>.namefield {
+				margin-left: 80px;
+			}
+			.level-4.product>.namefield {
+				margin-left: 100px;
+			}
+			.level-4.variant>.namefield {
+				margin-left: 120px;
+			}
+
+			.hidden { display: none; }
+			/* Absolute Center Spinner */
+			.loading {
+				position: absolute;
+				z-index: 99999;
+				height: 2em;
+				width: 2em;
+				overflow: show;
+				margin: auto;
+				top: 0;
+				left: 0;
+				bottom: 0;
+				right: 0;
+			}
+
+			/* Transparent Overlay */
+			.loading:before {
+				content: '';
+				display: block;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0,0,0,0.3);
+			}
+
+			/* :not(:required) hides these rules from IE9 and below */
+			.loading:not(:required) {
+				/* hide "loading..." text */
+				font: 0/0 a;
+				color: transparent;
+				text-shadow: none;
+				background-color: transparent;
+				border: 0;
+			}
+			.loading:not(:required):after {
+				content: '';
+				display: block;
+				font-size: 10px;
+				width: 1em;
+				height: 1em;
+				margin-top: -0.5em;
+				-webkit-animation: spinner 1500ms infinite linear;
+				-moz-animation: spinner 1500ms infinite linear;
+				-ms-animation: spinner 1500ms infinite linear;
+				-o-animation: spinner 1500ms infinite linear;
+				animation: spinner 1500ms infinite linear;
+				border-radius: 0.5em;
+				-webkit-box-shadow: rgba(0, 0, 0, 0.75) 1.5em 0 0 0, rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) 0 1.5em 0 0, rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, rgba(0, 0, 0, 0.5) -1.5em 0 0 0, rgba(0, 0, 0, 0.5) -1.1em -1.1em 0 0, rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0;
+				box-shadow: rgba(0, 0, 0, 0.75) 1.5em 0 0 0, rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) 0 1.5em 0 0, rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) -1.5em 0 0 0, rgba(0, 0, 0, 0.75) -1.1em -1.1em 0 0, rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0;
+			}
+
+			/* Animation */
+			@-webkit-keyframes spinner {
+				0% {
+					-webkit-transform: rotate(0deg);
+					-moz-transform: rotate(0deg);
+					-ms-transform: rotate(0deg);
+					-o-transform: rotate(0deg);
+					transform: rotate(0deg);
+				}
+				100% {
+					-webkit-transform: rotate(360deg);
+					-moz-transform: rotate(360deg);
+					-ms-transform: rotate(360deg);
+					-o-transform: rotate(360deg);
+					transform: rotate(360deg);
+				}
+			}
+			@-moz-keyframes spinner {
+				0% {
+					-webkit-transform: rotate(0deg);
+					-moz-transform: rotate(0deg);
+					-ms-transform: rotate(0deg);
+					-o-transform: rotate(0deg);
+					transform: rotate(0deg);
+				}
+				100% {
+					-webkit-transform: rotate(360deg);
+					-moz-transform: rotate(360deg);
+					-ms-transform: rotate(360deg);
+					-o-transform: rotate(360deg);
+					transform: rotate(360deg);
+				}
+			}
+			@-o-keyframes spinner {
+				0% {
+					-webkit-transform: rotate(0deg);
+					-moz-transform: rotate(0deg);
+					-ms-transform: rotate(0deg);
+					-o-transform: rotate(0deg);
+					transform: rotate(0deg);
+				}
+				100% {
+					-webkit-transform: rotate(360deg);
+					-moz-transform: rotate(360deg);
+					-ms-transform: rotate(360deg);
+					-o-transform: rotate(360deg);
+					transform: rotate(360deg);
+				}
+			}
+			@keyframes spinner {
+				0% {
+					-webkit-transform: rotate(0deg);
+					-moz-transform: rotate(0deg);
+					-ms-transform: rotate(0deg);
+					-o-transform: rotate(0deg);
+					transform: rotate(0deg);
+				}
+				100% {
+					-webkit-transform: rotate(360deg);
+					-moz-transform: rotate(360deg);
+					-ms-transform: rotate(360deg);
+					-o-transform: rotate(360deg);
+					transform: rotate(360deg);
+				}
+			}
+		</style>
+
+		<div id="loadingSpinner" class="loading"></div>
+
+	<apex:form id="Form">
+
+		<apex:sectionHeader title="{!$ObjectType.Order__c.Label}" subtitle="{!$ObjectType.Order__c.Label}" />
+		<apex:pageMessages />
+
+
+		<!-- STEP 1 Enter Email Address -->
+		<apex:pageBlock title="Enter Email Address" rendered="{!IF(step == 1, true, false)}" mode="edit">
+
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Next" reRender="Form" action="{!nextStep1}" oncomplete="$('#loadingSpinner').hide();" />
+				<apex:commandButton value="Cancel" action="{!cancel}" />
+				
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection columns="1" >
+
+				<apex:pageBlockSectionItem >
+					<apex:outputPanel >
+					Great, I'd be happy to help you with that, can I start by getting your e-mail address?
+					</apex:outputPanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputText value="Customer Email" />
+					<apex:inputField value="{!itemAccount.PersonEmail}" required="true" />
+				</apex:pageBlockSectionItem>
+
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+
+		<!-- STEP 2 Edit Contact Details -->
+		<apex:pageBlock title="Edit Contact Details" rendered="{!IF(step == 2, true, false)}" mode="edit">
+
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Back" action="{!backToStep1}" reRender="Form" oncomplete="$('#loadingSpinner').hide();" immediate="true"/>
+				<apex:commandButton value="Next" action="{!checkAccount}" reRender="Form" oncomplete="$('#loadingSpinner').hide();"/>
+<!--					<apex:actionSupport event="onclick" action="{!checkAccount}" onsubmit="javascript:$(this).prop('disabled', true);" /> 
+				</apex:commandButton>-->
+				<apex:commandButton value="Cancel" action="{!finishPage}" />
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection columns="1" >
+
+				<apex:pageBlockSectionItem >
+					First Name
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:inputText value="{!fName}" required="true"/>
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Last Name
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:inputText value="{!lName}"/>
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Email
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<!-- <apex:inputText value="{!lName}"/> -->
+						<apex:inputField value="{!itemAccount.PersonEmail}" />
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Phone Number
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:inputField value="{!itemAccount.Phone}" />
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Brand
+					<apex:inputField value="{!brandSelect.Brand_Assortment__c}" />
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Billing Street
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:inputField value="{!itemAccount.BillingStreet}" />
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Billing City
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:inputField value="{!itemAccount.BillingCity}" />
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem rendered="{!IF(countries == NULL, 'TRUE', 'FALSE')}">
+					Billing Country 
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:inputField value="{!itemAccount.BillingCountry}" />
+					</apex:outputPanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem rendered="{!IF(countries != NULL, 'TRUE', 'FALSE')}">
+					Billing Country 
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:selectList value="{!itemAccount.BillingCountry}" size="1" onchange="selectCounty();$('#loadingSpinner').show();" >
+							<apex:selectOptions value="{!countries}"/>
+						</apex:selectList>
+						<apex:actionFunction name="selectCounty" action="{!getAllContriesAndStates}" reRender="Form" oncomplete="$('#loadingSpinner').hide();"/>
+					</apex:outputPanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem rendered="{!IF(countries == NULL, 'TRUE', 'FALSE')}">
+					Billing State 
+					<apex:inputField value="{!itemAccount.BillingState}" />
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem rendered="{!IF(countries != NULL, 'TRUE', 'FALSE')}">
+					Billing State  
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:selectList value="{!itemAccount.BillingState}" size="1" disabled="{!IF(billingStates == NULL, 'TRUE', 'FALSE')}">
+							<apex:selectOptions value="{!billingStates}"/>
+						</apex:selectList>
+					</apex:outputPanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Billing Postal Code
+					<apex:inputField value="{!itemAccount.BillingPostalCode}" />
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Shipping Address is the same as Billing Address:
+					<apex:selectRadio value="{!address}" layout="pageDirection" onchange="javascript:autoHideField(this);">
+						<apex:selectOption itemValue="true" itemLabel="Yes" />
+						<apex:selectOption itemValue="false" itemLabel="No"/>
+					</apex:selectRadio>
+
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem dataStyleClass="blockSectionShippingAddress" >
+					Shipping Street
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:inputField value="{!itemAccount.ShippingStreet}" />
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem dataStyleClass="blockSectionShippingAddress">
+					Shipping City
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:inputField value="{!itemAccount.ShippingCity}" />
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem dataStyleClass="blockSectionShippingAddress" rendered="{!IF(countries == NULL, 'TRUE', 'FALSE')}">
+					Shipping Country 
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:inputField value="{!itemAccount.ShippingCountry}" />
+					</apex:outputPanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem dataStyleClass="blockSectionShippingAddress" rendered="{!IF(countries != NULL, 'TRUE', 'FALSE')}">
+					Shipping Country 
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:selectList value="{!itemAccount.ShippingCountry}" size="1" onchange="selectCounty();$('#loadingSpinner').show();" >
+							<apex:selectOptions value="{!countries}"/>
+						</apex:selectList>
+					</apex:outputPanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem dataStyleClass="blockSectionShippingAddress" rendered="{!IF(countries == NULL, 'TRUE', 'FALSE')}">
+					Shipping State 
+					<apex:inputField value="{!itemAccount.ShippingState}" />
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem dataStyleClass="blockSectionShippingAddress" rendered="{!IF(countries != NULL, 'TRUE', 'FALSE')}">
+					Shipping State 
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:selectList value="{!itemAccount.ShippingState}" size="1" disabled="{!IF(shippingStates == NULL, 'TRUE', 'FALSE')}">
+							<apex:selectOptions value="{!shippingStates}"/>
+						</apex:selectList>
+					</apex:outputPanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem dataStyleClass="blockSectionShippingAddress">
+					Shipping Postal Code
+					<apex:inputField value="{!itemAccount.ShippingPostalCode}" />
+				</apex:pageBlockSectionItem>
+
+			<script type="text/javascript">
+				jQuery(".data2Col.blockSectionShippingAddress").parent().hide();
+			</script>
+
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+
+		<!-- STEP 3 Choose Products -->
+		<apex:pageBlock title="Choose Products" rendered="{!IF(step == 3, true, false)}" mode="edit">
+
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Back" action="{!backToStep2}" reRender="Form" oncomplete="$('#loadingSpinner').hide();" immediate="true"/>
+				<apex:commandButton value="Next" action="{!nextStep3}" reRender="Form" onclick="$('#loadingSpinner').show();" oncomplete="$('#loadingSpinner').hide();">
+<!--					<apex:actionSupport event="onclick" action="{!nextStep3}" onsubmit="javascript:$(this).prop('disabled', true);" /> -->
+				</apex:commandButton>
+				<apex:commandButton value="Cancel" action="{!finishPage}" />
+			</apex:pageBlockButtons>
+			<div class="productlist">
+				<apex:outputPanel rendered="{!nodes.size > 0}">
+					<apex:repeat value="{!nodes}" var="node">
+						<apex:outputPanel layout="block" rendered="{!node.isCategory}"
+							styleClass="node level-{!node.level} category {!node.toplevel}"
+							html-data-id="{!node.id}" html-data-level="{!node.level}" html-data-type="category" html-data-parentid="{!node.parentid}"
+							onclick="categorycollapse(this);"
+						>
+							<div class="namefield">
+								<apex:outputLink value="javascript:;"> {!node.name} </apex:outputLink>
+							</div>
+						</apex:outputPanel>
+
+						<apex:outputPanel layout="block" rendered="{!node.isProduct}"
+							styleClass="node level-{!node.level} product"
+							html-data-id="{!node.id}" html-data-level="{!node.level}" html-data-type="product" html-data-parentid="{!node.parentid}"
+							onclick="categorycollapse(this);"
+						>
+							<div class="namefield">
+								<apex:outputLink value="javascript:;"> {!node.name} </apex:outputLink>
+							</div>
+						</apex:outputPanel>
+
+						<apex:outputPanel layout="block" rendered="{!!node.isCategory && !node.isProduct}"
+							styleClass="node level-{!node.level} variant"
+							html-data-parentid="{!node.parentid}"
+						>
+							<div class="namefield">
+								<apex:outputText value="{!node.name}" />
+							</div>
+							<div class="countfield">
+								<apex:inputText value="{!node.count}" />
+							</div>
+							<div class="pricefield">
+								<apex:outputText value="{0, Number, Currency}">
+									<apex:param value="{!node.price}" />
+								</apex:outputText>
+							</div>
+						</apex:outputPanel>
+					</apex:repeat>
+				</apex:outputPanel>
+
+				<apex:outputPanel layout="block" rendered="{!nodes.size == 0}">
+					No records to display
+				</apex:outputPanel>
+			</div>
+
+		</apex:pageBlock>
+
+
+
+		<!-- STEP 4 Confirm And Checkout -->
+		<apex:pageBlock title="Confirm And Checkout" rendered="{!IF(step == 4, true, false)}" mode="edit">
+
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Back" action="{!backToStep3}" reRender="Form" oncomplete="$('#loadingSpinner').hide();" immediate="true"/>
+				<apex:commandButton value="Next" action="{!nextStep4}" onclick="$('#loadingSpinner').show();" reRender="Form" oncomplete="$('#loadingSpinner').hide();">
+<!--					<apex:actionSupport event="onclick" action="{!nextStep4}" onsubmit="javascript:$(this).prop('disabled', true);" /> -->
+				</apex:commandButton>
+				<apex:commandButton value="Cancel" action="{!finishPage}" />
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection columns="1">
+				<apex:pageBlockSectionItem >
+					<apex:outputText value="{!brandSelect.Brand_Assortment__c} Cost:" />
+					<apex:outputText value="{0, Number, Currency}">
+						<apex:param value="{!itemCount}" />
+					</apex:outputText>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Сoupon Discount:
+					<apex:outputText value="{0, Number, Currency}">
+						<apex:param value="{!couponDiscount}" />
+					</apex:outputText>
+				</apex:pageBlockSectionItem>
+<!--
+				<apex:pageBlockSectionItem >
+					Shipping Cost:
+					<apex:outputText value="{!shippingCost}" />
+				</apex:pageBlockSectionItem>
+-->
+				<apex:pageBlockSectionItem >
+					Total Invoice:
+					<apex:outputText value="{0, Number, Currency}">
+						<apex:param value="{!totalCount}" />
+					</apex:outputText>
+				</apex:pageBlockSectionItem>
+<!--
+				<apex:pageBlockSectionItem >
+					Sale Tax:
+					<apex:outputText value="{!saleTax}" />
+				</apex:pageBlockSectionItem>
+-->
+				<apex:pageBlockSectionItem >
+					Proceed to Checkout?
+					<apex:selectRadio value="{!choiceCheckout}" layout="pageDirection" >
+						<apex:selectOption itemValue="true" itemLabel="Proceed to Checkout Yes" />
+						<apex:selectOption itemValue="false" itemLabel="Proceed to Checkout No"/>
+					</apex:selectRadio>
+
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection columns="1">
+				<apex:outputPanel >
+					Coupon: <apex:inputText value="{!couponCode}" />
+					<apex:commandButton value="Apply Coupon" action="{!applyCoupon}" reRender="Form"/>
+				</apex:outputPanel>
+				<apex:outputPanel rendered="true">
+					<apex:outputText value="{!errorStatus}"/>
+				</apex:outputPanel>
+			</apex:pageBlockSection>
+
+
+		</apex:pageBlock>
+
+		<!-- STEP 5 Fill Credit Card Information -->
+		<apex:pageBlock title="Fill Credit Card Information" rendered="{!IF(step == 5, true, false)}" mode="edit">
+
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Back" action="{!backToStep4}" reRender="Form" oncomplete="$('#loadingSpinner').hide();" immediate="true"/>
+				<apex:commandButton value="Next" action="{!nextStep5}" onclick="$('#loadingSpinner').show();" reRender="Form" oncomplete="$('#loadingSpinner').hide();">
+<!--					<apex:actionSupport event="onclick" action="{!nextStep5}" onsubmit="javascript:$(this).prop('disabled', true);" /> -->
+				</apex:commandButton>
+				<apex:commandButton value="Cancel" action="{!finishPage}" />
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection columns="1">
+
+				<apex:pageBlockSectionItem >
+					Card Type
+					<apex:selectList value="{!cardType}" size="1">
+					<apex:selectOption itemValue="Mastercard" itemLabel="Mastercard"/>
+					<apex:selectOption itemValue="Visa" itemLabel="Visa"/>
+					<apex:selectOption itemValue="Discover" itemLabel="Discover"/>
+					<apex:selectOption itemValue="American Express" itemLabel="American Express"/>
+					<apex:selectOption itemValue="MC Eurocard" itemLabel="MC Eurocard"/>
+					<apex:selectOption itemValue="UK Maestro" itemLabel="UK Maestro"/>
+					<apex:selectOption itemValue="JCB Card" itemLabel="JCB Card"/>
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Card Number
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:inputText value="{!cardNamber}"/>
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Card Expiration Year
+					<apex:selectList value="{!cardExpirationYear}" size="1">
+						<apex:selectOption itemValue="2018" itemLabel="2018"/>
+						<apex:selectOption itemValue="2019" itemLabel="2019"/>
+						<apex:selectOption itemValue="2020" itemLabel="2020"/>
+						<apex:selectOption itemValue="2021" itemLabel="2021"/>
+						<apex:selectOption itemValue="2022" itemLabel="2022"/>
+						<apex:selectOption itemValue="2023" itemLabel="2023"/>
+						<apex:selectOption itemValue="2024" itemLabel="2024"/>
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					Card Expiration Month
+					<apex:selectList value="{!cardExpirationMonth}" size="1">
+						<apex:selectOption itemValue="01" itemLabel="January"/>
+						<apex:selectOption itemValue="02" itemLabel="February"/>
+						<apex:selectOption itemValue="03" itemLabel="March"/>
+						<apex:selectOption itemValue="04" itemLabel="April"/>
+						<apex:selectOption itemValue="05" itemLabel="May"/>
+						<apex:selectOption itemValue="06" itemLabel="June"/>
+						<apex:selectOption itemValue="07" itemLabel="July"/>
+						<apex:selectOption itemValue="08" itemLabel="August"/>
+						<apex:selectOption itemValue="09" itemLabel="September"/>
+						<apex:selectOption itemValue="10" itemLabel="October"/>
+						<apex:selectOption itemValue="11" itemLabel="November"/>
+						<apex:selectOption itemValue="12" itemLabel="December"/>
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					CCV
+					<apex:outputpanel styleClass="requiredInput" layout="block">
+						<div class="requiredBlock"></div>
+						<apex:inputText value="{!ccv}" />
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+
+		<!-- STEP 6 Choose Credit Card -->
+		<apex:pageBlock title="Choose Credit Card" rendered="{!IF(step == 6, true, false)}" mode="edit">
+
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Next" action="{!nextStep6}" onclick="$('#loadingSpinner').show();" reRender="Form" oncomplete="$('#loadingSpinner').hide();">
+<!--					<apex:actionSupport event="onclick" action="{!nextStep6}" onsubmit="javascript:$(this).prop('disabled', true);" /> -->
+				</apex:commandButton>
+				<apex:commandButton value="Cancel" action="{!finishPage}" />
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection columns="1">
+				<apex:pageBlockSectionItem >
+					Choose credit card:
+					<apex:selectRadio value="{!choiceCard}" layout="pageDirection" >
+						<apex:selectOption itemValue="true" itemLabel="Use this credit card:************{!last4}" />
+						<apex:selectOption itemValue="false" itemLabel="Enter new credit card"/>
+					</apex:selectRadio>
+
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+
+		<!-- STEP 7 - ERROR -->
+		<apex:pageBlock title="Error" rendered="{!IF(step == 7, true, false)}" mode="edit">
+
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Close" action="{!finishPage}"/>
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection columns="1">
+				<apex:pageBlockSectionItem >
+					Error:
+					<apex:outputText value="{!errorStatus}"/>
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+
+		<!-- STEP 8 Confirm Your Order -->
+		<apex:pageBlock title="Confirm Your Order" rendered="{!IF(step == 8, true, false)}" mode="edit">
+
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Next" action="{!nextStep8}" onclick="$('#loadingSpinner').show();" reRender="Form" oncomplete="$('#loadingSpinner').hide();">
+<!--					<apex:actionSupport event="onclick" action="{!nextStep8}" onsubmit="javascript:$(this).prop('disabled', true);" /> -->
+				</apex:commandButton>
+				<apex:commandButton value="Cancel" action="{!finishPage}" />
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection columns="1">
+				<apex:pageBlockSectionItem >
+					Your order number is:
+					<apex:outputText value="{!nameOrder}"/>
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+
+		<!-- STEP 9 FINISH -->
+		<apex:pageBlock title="Your Order Is Completed" rendered="{!IF(step == 9, true, false)}" mode="edit">
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Finish" action="{!finishPage}"/>
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection columns="1">
+				<apex:outputText value="Your order has been processed successfully"/>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+	</apex:form>
+
+	<script type="text/javascript">
+		// in the event don't need to hide fields
+		function autoHideField(that) {
+			var typeSelected = jQuery(that).val();
+			var itemFirst = jQuery(".data2Col.blockSectionShippingAddress").parent();
+
+			if (typeSelected === 'true') {
+				itemFirst.hide();
+			}
+			else if (typeSelected === 'false') {
+				itemFirst.show();
+			}
+			else {
+				itemFirst.hide();
+			}
+		}
+		function categorycollapse(elem) {
+				var elemid = $(elem).data('id');
+				var elemlevel = $(elem).data('level');
+				var elemtype = $(elem).data('type');
+				var elemparentid = $(elem).data('parentid');
+				var elemchilds = $("div[data-parentid='" + elemid + "']");
+				var selector;
+				if (elemchilds.hasClass("hidden")) {
+					elemchilds.removeClass("hidden");
+				}
+				else {
+					if (elemtype === 'product') {
+						elemchilds.addClass("hidden");
+					}
+					else {
+						selector = ".node.level-" + elemlevel + "." + elemtype;
+						$(elem).nextUntil(selector).addClass("hidden");
+					}
+				}
+		}
+
+		window.onload = function() { $('#loadingSpinner').hide(); }
+	</script>
+</apex:page>

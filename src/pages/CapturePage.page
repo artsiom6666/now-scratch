@@ -1,0 +1,10 @@
+<apex:page standardController="Order_Transaction__c" extensions="CaptureController">
+	<apex:form >
+		<apex:actionFunction name="captureTransactionAF" action="{!captureNow}"/>
+		<script type="text/javascript">
+			window.onload = function() {
+				captureTransactionAF();
+			}
+		</script>
+	</apex:form>
+</apex:page>

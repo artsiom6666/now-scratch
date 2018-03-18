@@ -1,0 +1,820 @@
+<aura:component implements="force:appHostable" controller="NOWController" access="global" >
+
+	<aura:attribute name="newAccount" type="Account"  default="{ 'sobjectType': 'Account' }"/>
+	<aura:attribute name="sameBillingAddress" type="Boolean" default="false"/>
+	<aura:attribute name="validData" type="Boolean"/>
+
+	<aura:attribute name="brandPicklist" type="String[]"/>
+	<aura:attribute name="shippingCountryPicklist" type="String[]"/>
+	<aura:attribute name="shippingStatePicklist" type="String[]"/>
+	<aura:attribute name="billingCountryPicklist" type="String[]"/>
+
+	<aura:attribute name="countryLabels" type="Map"/>
+	<aura:attribute name="billingLabel" type="String[]"/>
+	<aura:attribute name="shippingLabel" type="String[]"/>
+
+	<aura:attribute name="accountData" type="String[]"/>
+
+	<aura:attribute name="accountsDataForUpsert" type="Map"/>
+
+	<aura:attribute name="nodes" type="NOWNode[]"/>
+	<aura:attribute name="bumpOffers" type="Object[]"/>
+	<aura:attribute name="upsells" type="Object[]"/>
+	<aura:attribute name="downsells" type="Object[]"/>
+	<!--<aura:attribute name="upDownOffers" type="Object[]"/>-->
+<!--	<aura:attribute name="infoOfAddress" type="HICHelper.AddressproInfo"/> -->
+
+	<aura:attribute name="card" type="String[]"/>
+
+	<aura:attribute name="shippingList" type="Decimal[]"/>
+	<aura:attribute name="orderFormData" type="Object"/>
+	<aura:attribute name="price" type="String[]"/>
+	<aura:attribute name="checkOldCreditCardResult" type="String[]"/>
+	<aura:attribute name="bOffersAmount" type="Decimal" default="0"/>
+	<aura:attribute name="subtotalPrice" type="Decimal" default="0"/>
+	<aura:attribute name="coupons" type="String[]"/>
+	<aura:attribute name="couponCode" type="String"/>
+	<aura:attribute name="discCouponWithCode" type="Decimal"/>
+	<aura:attribute name="couponDiscount" type="Decimal" default="0"/>
+	<aura:attribute name="couponError" type="String"/>
+	<aura:attribute name="autoApply" type="String" default="false"/> 
+	<aura:attribute name="usePreviousCard" type="Boolean" default="false"/>
+	<aura:attribute name="orderName" type="String[]"/>
+	<aura:attribute name="experationYears" type="String[]"/>
+
+	<aura:attribute name="errorSave" type="Boolean" default="false" />
+	<aura:attribute name="textErrorMessage" type="String"/>
+
+	<aura:attribute name="isStandardDelivery" type="Boolean" default="true"/>
+	<aura:attribute name="isSecondDate" type="Boolean" default="false"/>
+	<aura:attribute name="timeEnd" type="String"/>
+	<aura:attribute name="showSecondDate" type="Boolean" default="false" />
+	<aura:attribute name="timeEnd2" type="String"/>
+	<aura:attribute name="needCubes" type="Integer"/>
+	<aura:attribute name="countEskyCube" type="Integer"/>
+	<aura:attribute name="cubeInfo" type="Map"/>
+
+	<aura:attribute name="lastStep" type="String"/>
+	<aura:attribute name="showTextCube" type="Boolean" default="false"/>
+	<aura:attribute name="showTextCube2" type="Boolean" default="false"/>
+
+	<aura:attribute name="showSpinner" type="Boolean" default="false" />
+
+	<aura:attribute name="showAddressesB" type="boolean" default="false" />
+	<aura:attribute name="showAddressesS" type="boolean" default="false" />
+	<aura:attribute name="showAddressesLoadingB" type="boolean" default="false" />
+	<aura:attribute name="showAddressesLoadingS" type="boolean" default="false" />
+	<aura:attribute name="addressPreviousB" type="String" />
+	<aura:attribute name="addressPreviousS" type="String" />
+	<aura:attribute name="addressesB" type="List" />
+	<aura:attribute name="addressesS" type="List" />
+
+	<aura:attribute name="billingAddress" type="String" />
+	<aura:attribute name="shippingAddress" type="String" />
+
+	<aura:attribute name="experationMonths" type="String[]"/>
+	<aura:attribute name="experationYearValue" type="String"/>
+	<aura:attribute name="experationMonthValue" type="String"/>
+	
+	<div class="slds-box slds-color__background_gray-1">
+	<!-- PAGE HEADER -->
+	<div class="slds-page-header" role="banner">
+		<div class="slds-grid">
+			<div class="slds-col">
+				<p class="slds-text-heading--label">Order Wizard</p>
+				<h1 class="slds-text-heading--medium">Complete few easy steps</h1>
+			</div>
+		</div>
+	</div>
+	<!-- / PAGE HEADER -->
+	
+		<div class="slds-m-top--medium"></div>
+
+	<div class="slds-m-horizontal--xx-large">
+		<div class="slds-grid">
+			<div class="slds-tabs--path" role="application">
+				<ul class="slds-tabs--path__nav" role="tablist">
+					<li id="firstTab" class="slds-tabs--path__item slds-is-current" role="presentation">
+						<a class="slds-tabs--path__link" id="tabs-path-1" aria-controls="content-path-1" aria-selected="false" tabindex="-1" role="tab" href="javascript:void(0);" aria-live="assertive">
+							<span class="slds-tabs--path__stage">
+
+							</span>
+							<span class="slds-tabs--path__title">Step 1</span>
+						</a>
+					</li>
+					<li id="secondTab" class="slds-tabs--path__item slds-is-incomplete" role="presentation">
+						<a class="slds-tabs--path__link" id="tabs-path-2" aria-controls="content-path-1" aria-selected="false" tabindex="-1" role="tab" href="javascript:void(0);" aria-live="assertive">
+							<span class="slds-tabs--path__stage">
+
+							</span>
+							<span class="slds-tabs--path__title">Step 2</span>
+						</a>
+					</li>
+					<li id="thirdTab" class="slds-tabs--path__item slds-is-incomplete" role="presentation">
+						<a class="slds-tabs--path__link" id="tabs-path-1" aria-controls="content-path-1" aria-selected="false" tabindex="-1" role="tab" href="javascript:void(0);" aria-live="assertive">
+							<span class="slds-tabs--path__stage">
+
+							</span>
+							<span class="slds-tabs--path__title">Step 3</span>
+						</a>
+					</li>
+					<li id="fourthTab" class="slds-tabs--path__item slds-is-incomplete" role="presentation">
+						<a class="slds-tabs--path__link" id="tabs-path-1" aria-controls="content-path-1" aria-selected="false" tabindex="-1" role="tab" href="javascript:void(0);" aria-live="assertive">
+							<span class="slds-tabs--path__stage">
+
+							</span>
+							<span class="slds-tabs--path__title">Step 4</span>
+						</a>
+					</li>
+					<li id="fifthTab" class="slds-tabs--path__item slds-is-incomplete" role="presentation">
+						<a class="slds-tabs--path__link" id="tabs-path-1" aria-controls="content-path-1" aria-selected="false" tabindex="-1" role="tab" href="javascript:void(0);" aria-live="assertive">
+							<span class="slds-tabs--path__stage">
+
+							</span>
+							<span class="slds-tabs--path__title">Step 5</span>
+						</a>
+					</li>
+					<li id="sixthTab" class="slds-tabs--path__item slds-is-incomplete" role="presentation">
+						<a class="slds-tabs--path__link" id="tabs-path-1" aria-controls="content-path-1" aria-selected="false" tabindex="-1" role="tab" href="javascript:void(0);" aria-live="assertive">
+							<span class="slds-tabs--path__stage">
+
+							</span>
+							<span class="slds-tabs--path__title">Step 6</span>
+						</a>
+					</li>
+					<li id="seventhTab" class="slds-tabs--path__item slds-is-incomplete" role="presentation">
+						<a class="slds-tabs--path__link" id="tabs-path-1" aria-controls="content-path-1" aria-selected="false" tabindex="-1" role="tab" href="javascript:void(0);" aria-live="assertive">
+							<span class="slds-tabs--path__stage">
+
+							</span>
+							<span class="slds-tabs--path__title">Step 7</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	
+	<div class="slds-align--absolute-center" style="width: 570px; border-radius: 5px; margin-top: 10px; background-color: white;">
+		<fieldset class="slds-box slds-theme--default slds-container--small" style="min-width: 100%;" >
+
+			<legend id="editContactDetails" class="slds-text-heading--small slds-p-vertical--medium">
+				Enter Email Address
+			</legend>
+
+			<aura:if isTrue="{!v.errorSave}">
+				<div class="slds-notify_container" style="top: 130px;">
+				   <div class="slds-notify slds-notify--toast slds-theme--error" role="alert">
+						<span class="slds-assistive-text">Error</span>
+						<button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+							<lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+							<span class="slds-assistive-text">Close Button</span>
+						</button>
+						<div class="slds-notify__content slds-grid">
+							<lightning:icon iconName="utility:warning" size="small" class="color-icon-alert"/>
+							<div class="slds-col slds-align-middle" style="padding-left: 10px;">
+								<h2 class="slds-text-heading--small">{!v.textErrorMessage}</h2>
+							</div>
+						</div>
+					</div>
+				</div>
+			 </aura:if>
+
+			<div id="notificationBlock" class="slds-hide">
+				<div class="slds-form-element">
+					<div class="slds-align--absolute-center">There are no products. Try to choose another brand.</div>
+				</div>
+			</div>
+
+			<div id="notificationStepFour" class="slds-hide">
+				<div class="slds-form-element">
+					<div class="slds-align--absolute-center">You didn't choose any products. You need to choose at least one.</div>
+				</div>
+			</div>
+
+			<div id="notificationStepSix" class="slds-hide">
+				<div class="slds-form-element">
+					<div class="slds-align--absolute-center">Can't create new order ({!v.orderName[1]})</div>
+				</div>
+			</div>
+
+			<div id="stepOneBlock" class="slds-show">
+				<div class="slds-form-element">
+					<ui:inputText aura:id="addEmail" label="Email address" class="slds-input" labelClass="slds-form-element__label" required="true" />
+				</div>
+			</div>	
+					
+			<div id="stepTwoBlock"  class="slds-hide">
+				<div class="slds-form-element" id="FirstName">
+					<ui:inputText aura:id="FirstName" label="First Name" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.newAccount.FirstName}"/>
+				</div>
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element" id="LastName">
+					<ui:inputText aura:id="LastName" label="Last Name" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.newAccount.LastName}" />
+				</div>
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element" id="PersonEmail">
+					<ui:inputEmail aura:id="PersonEmail" label="PersonEmail" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.newAccount.PersonEmail}"/>
+				</div>
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element" id="Phone">
+					<ui:inputPhone aura:id="Phone" label="Phone" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.newAccount.Phone}" />
+				</div>
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element" id="Brand">
+					<ui:inputSelect aura:id="Brand" label="Brand" class="slds-input" labelClass="slds-form-element__label">
+						<ui:inputSelectOption text="{!v.brandPicklist[0]}" label="{!v.brandPicklist[0]}" value="true"/>
+						<aura:iteration items="{!v.brandPicklist}" var="item" start="1">
+							<ui:inputSelectOption text="{!item}" label="{!item}"/>
+						</aura:iteration>
+					</ui:inputSelect>
+				</div>
+				<div class="slds-hide"></div>
+				<div class="slds-hide">
+					<ui:inputText aura:id="ShippingAddress" label="Shipping Address" class="slds-hide" labelClass="slds-form-element__label" required="true" value="{!v.shippingAddress}" keyup="{!c.addressChangeS}" updateOn="keyup" />
+				</div>
+
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element slds-hide" id="ShippingCountryEmpty">
+					<ui:inputText aura:id="ShippingCountryEmpty" label="Shipping Country" class="slds-input" labelClass="slds-form-element__label" value="{!v.newAccount.ShippingCountry}"  /> 
+				</div>
+				<div class="slds-form-element slds-hide" id="ShippingStateEmpty">
+					<ui:inputText aura:id="ShippingStateEmpty" label="Shipping State" class="slds-input" labelClass="slds-form-element__label"  value="{!v.newAccount.ShippingState}"  /> 
+				</div>
+				<div class="slds-form-element slds-show" id="ShippingCountry">
+					<ui:inputSelect aura:id="ShippingCountry" label="Shipping Country" class="slds-input" labelClass="slds-form-element__label" change="{!c.changeShippingCountry}">
+						<ui:inputSelectOption text="{!v.newAccount.ShippingCountry}" label="{!v.newAccount.ShippingCountry}" value="{!v.newAccount.ShippingCountry}" />
+						<aura:iteration items="{!v.shippingCountryPicklist}" var="item" start="0">
+							<ui:inputSelectOption text="{!item}" label="{!item}"/>
+						</aura:iteration>
+					</ui:inputSelect>
+				</div>
+				<div class="slds-form-element slds-show" id="ShippingState">
+					<ui:inputSelect aura:id="ShippingState" label="Shipping State" class="slds-input" labelClass="slds-form-element__label">
+						<ui:inputSelectOption text="{!v.newAccount.ShippingState}" label="{!v.newAccount.ShippingState}" value="{!v.newAccount.ShippingState}"/>
+						<aura:iteration items="{!v.shippingStatePicklist}" var="item" start="0">
+							<ui:inputSelectOption text="{!item}" label="{!item}"/>
+						</aura:iteration>
+					</ui:inputSelect>
+				</div>
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element" id="ShippingStreet">
+					<ui:inputText aura:id="ShippingStreet" label="Shipping Street" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.newAccount.ShippingStreet}"  />
+				</div>
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element" id="ShippingCity">
+					<ui:inputText aura:id="ShippingCity" label="Shipping City" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.newAccount.ShippingCity}"  />
+				</div>
+				
+<!--				<div class="slds-m-top-x-small"></div>
+				<div class="slds-form-element">
+					<ui:inputText aura:id="ShippingCountryCode" label="Shipping Country Code" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.newAccount.ShippingCountryCode}"  />
+				</div>-->
+<!--				<div class="slds-m-top-!!!-x-small"></div>
+				<div class="slds-form-element">
+					<ui:inputText aura:id="ShippingState" label="Shipping State" class="slds-input" labelClass="slds-form-element__label" required="false" value="{!v.newAccount.ShippingState}"  />
+					<ui:inputSelect aura:id="ShippingState" label="Shipping State" class="slds-input" labelClass="slds-form-element__label">
+						<ui:inputSelectOption text="{!v.newAccount.ShippingState}" label="{!v.newAccount.ShippingState}" value="true"/>
+						<aura:iteration items="{!v.brandPicklist}" var="item" start="1">
+							<ui:inputSelectOption text="{!item}" label="{!item}"/>
+						</aura:iteration>
+					</ui:inputSelect>
+				</div> -->
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element" id="ShippingPostalCode">
+					<ui:inputText aura:id="ShippingPostalCode" label="Shipping Postal Code" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.newAccount.ShippingPostalCode}"  />
+				</div>
+			   
+				
+				<aura:if isTrue="{!v.showAddressesLoadingS}">
+					<span class="slds-form-element__label">Loading...</span>
+				</aura:if>
+				<aura:if isTrue="{!v.showAddressesS}">
+					<br />
+					<div>
+	 					<aura:iteration items="{!v.addressesS}" var="item">
+							<div><span class="slds-form-element__label" onclick="{!c.addressClickS}" style="cursor: pointer;">{!item}</span></div>
+						</aura:iteration>
+					</div>
+				</aura:if>
+
+				<section class="slds-clearfix">
+					<div class="slds-m-top--x-small"></div>
+					<div class="slds-float--right">
+						<div class="slds-form-element">
+							<label class="slds-checkbox--toggle slds-grid slds-grid--vertical-align-center">
+								<span class="slds-form-element__label slds-m-bottom--none">Billing Address is the same as Shipping Address:</span>
+								<input id="addressCheckbox" name="checkbox" type="checkbox" onclick="{!c.changeBillingAddress}"/>
+								<span class="slds-checkbox--faux" data-check-on="Yes" data-check-off="No"></span>
+							</label>
+						</div>
+					</div>
+				</section>
+
+				<div id="BillingAddressIsTheSame"  class="slds-hide">
+					<div class="slds-hide"></div>
+					<div class="slds-hide">
+						<ui:inputText aura:id="BillingAddress" label="Billing Address" class="slds-hide" labelClass="slds-form-element__label" required="true" value="{!v.billingAddress}" keyup="{!c.addressChangeB}" updateOn="keyup" />
+					</div>
+
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element" id="BillingCountry">
+					<ui:inputSelect aura:id="BillingCountry" label="Billing Country" class="slds-input" labelClass="slds-form-element__label">
+						<ui:inputSelectOption text="{!v.newAccount.BillingCountry}" label="{!v.newAccount.BillingCountry}" value="true"/>
+						<aura:iteration items="{!v.billingCountryPicklist}" var="item" start="1">
+							<ui:inputSelectOption text="{!item}" label="{!item}"/>
+						</aura:iteration>
+					</ui:inputSelect>
+				</div>
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element" id="BillingStreet">
+					<ui:inputText aura:id="BillingStreet" label="Billing Street" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.newAccount.BillingStreet}"  />
+				</div>
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element" id="BillingCity">
+					<ui:inputText aura:id="BillingCity" label="Billing City" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.newAccount.BillingCity}"  />
+				</div>
+				<div class="slds-m-top--x-small"></div>
+				<div class="slds-form-element" id="BillingPostalCode">
+					<ui:inputText aura:id="BillingPostalCode" label="Billing Postal Code" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.newAccount.BillingPostalCode}"  />
+				</div>
+
+					
+					<aura:if isTrue="{!v.showAddressesLoadingB}">
+						<span class="slds-form-element__label">Loading...</span>
+					</aura:if>
+					<aura:if isTrue="{!v.showAddressesB}">
+						<br />
+						<div>
+		 					<aura:iteration items="{!v.addressesB}" var="item">
+								<div><span class="slds-form-element__label" onclick="{!c.addressClickB}" style="cursor: pointer;">{!item}</span></div>
+							</aura:iteration>
+						</div>
+					</aura:if>
+
+				</div>
+			</div>
+			
+			<div id="stepThreeBlock"  class="slds-hide">
+
+				<div class="slds-form-element" >
+					<aura:iteration var="node" items="{!v.nodes}">
+						<aura:if isTrue="{!node.level == 0 }">
+							<div id="{!node.id}" class="slds-text-heading--label $font-size-xx-large" >
+								<div class="slds-truncate"><a id="{!node.id}" href="" onclick="{!c.showNode}">{!node.name}</a></div>
+							</div>
+							<aura:set attribute="else">
+								<aura:if isTrue="{!node.price != null }">
+									<div class="{!node.parentid + ' slds-text-heading--label slds-grid slds-grid--align-spread'}" style="display: none; margin-top: 10px;">
+										<div class="slds-truncate" onclick="{!c.showNode}" style="margin-left: 25px; padding-top: 9px; width: 60%;">
+												{!node.name}
+										</div>
+										<div style="padding-top: 9px;  width: 25%;">
+												<ui:outputCurrency value="{!node.price}" />
+										</div>
+										<div style="width: 10%;">
+											<input id="{!node.id}" class="slds-input amount slds-float--right" style="width: 75px;" type="text" value="{!node.count}"/>
+										</div>
+									</div>
+								</aura:if>
+							</aura:set>
+						</aura:if>
+					</aura:iteration>
+				</div>
+			</div>
+			
+			<div id="stepFourBlock" class="slds-hide">
+				<aura:if isTrue="{!v.bumpOffers.length > 0 }">
+					<div id="bumpOffersPopUp" class="slds-show" style="height: 640px;" aria-hidden="false">
+						<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1"
+						 class="slds-modal slds-fade-in-open">
+							<div class="slds-modal__container">
+								<header class="slds-modal__header">
+									<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">We have special offers for you</h2>
+								</header>
+								<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+									<aura:iteration var="bOffer" items="{!v.bumpOffers}">
+										<div class="slds-form-element slds-grid slds-grid--align-spread" style=" margin-top: 10px;">
+											<div class="slds-truncate" style="margin-left: 25px; padding-top: 9px; width: 60%;">
+												{!bOffer.name}
+											</div>
+											<div style="padding-top: 9px;  width: 25%;">
+													<h2>Standard price:</h2>
+													<ui:outputCurrency value="{! bOffer.oldPrice}"/>
+												</div>
+											<div style="padding-top: 9px;  width: 25%;">
+												<h2>Price for you!:</h2>
+												<ui:outputCurrency value="{! bOffer.price}"/>
+											</div>
+											<div style="width: 10%;">
+												<ui:inputNumber aura:id="{!bOffer.id}" label="Num" value="{!bOffer.count}"/>
+											</div>
+										</div>
+									</aura:iteration>
+								</div>
+								<footer class="slds-modal__footer">
+									<button class="slds-button slds-button_neutral" onclick="{!c.closeBumpPopUp}">Cancel</button>
+									<button class="slds-button slds-button_brand" onclick="{!c.addBumpOffers}">Add to cart</button>
+								</footer>
+							</div>
+						</section>
+						<div class="slds-backdrop slds-backdrop_open"></div>
+					</div>
+				</aura:if>
+				<table class="slds-table slds-table--bordered slds-table--cell-buffer">
+					<thead>
+					<tr class="slds-text-heading--label" style="background-color: #f4f6f9;">
+						<th scope="col" style="width: 80%">
+							<div class="slds-truncate" title="Information">Information</div>
+						</th>
+						<th scope="col" style="width: 20%">
+							<div class="slds-truncate" title="Price">Price</div>
+						</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr class="slds-text-heading--label ">
+						<td ><div class="slds-truncate">Cost</div></td>
+						<td ><div class="slds-truncate" id="Cost"><ui:outputCurrency value="{!v.price[7]}" /></div></td>
+					</tr>
+					<aura:if isTrue="{!v.bumpOffers.length > 0 }">
+					<tr class="slds-text-heading--label ">
+							<td ><div class="slds-truncate" href="" onclick="{!c.showBumpPopUp}">Special offers amount</div></td>
+							<td ><div class="slds-truncate " id="bOffersCost"><ui:outputCurrency value="{!v.bOffersAmount}" /></div></td>
+					</tr>
+					</aura:if>
+<!--					<tr class="  ">
+						<td ><div class="slds-truncate">Shipping Cost</div></td>
+						<td ><div class="slds-truncate"><ui:outputCurrency value="{!v.shippingList[0]}" /></div></td>
+					</tr>
+					<tr class="">
+						<td ><div class="slds-truncate">GST</div></td>
+						<td ><div class="slds-truncate"><ui:outputCurrency value="{!v.price[6]}" /></div></td>
+					</tr> -->
+					<tr class="slds-text-heading--label ">
+						<td ><div class="slds-truncate">Coupon 
+							discount</div></td>
+						<td ><div class="slds-truncate" id="TotalInvoice"><ui:outputCurrency value="{!v.couponDiscount}" /></div></td>
+					</tr>
+					<tr class="slds-text-heading--label ">
+						<td ><div class="slds-truncate">Total Invoice</div></td>
+						<td ><div class="slds-truncate" id="TotalInvoice"><ui:outputCurrency value="{!v.price[0]}" /></div></td>
+					</tr>
+					</tbody>
+				</table>
+				<div class="slds-m-top--medium"></div>
+				<div id="couponForm" class="slds-grid slds-wrap" >
+					<div id="inputCouponCode" class="slds-col slds-size_6-of-12">
+						<ui:inputText aura:id="couponCode" placeholder="Enter your coupon code here" class="slds-input slds-col" value="{!v.couponCode}"  />
+					</div>
+					<div id="applyCouponCode" class="slds-button slds-col slds-size_3-of-12">
+						<button id="applyCoupon" class="slds-button slds-button--neutral" onclick="{!c.haveCouponCode}">
+							Apply coupon
+						</button>
+					</div>
+					<div id="rollbackCouponCode" class="slds-button slds-col slds-size_3-of-12 slds-hide">
+						<button id="rollbackCoupon" class="slds-button slds-button--neutral" onclick="{!c.rollBackDiscount}">
+							Back coupon
+						</button>
+					</div>
+					<aura:if isTrue="{!v.bumpOffers.length > 0 }">
+						<div class="slds-col slds-size_3-of-12">
+							<div class="slds-float--left">
+								<button id="clearBOffers" class="slds-button slds-button--neutral" onclick="{!c.editBumpOffers}">
+									Edit special offer
+								</button>
+							</div>
+						</div>
+					</aura:if>
+				</div>
+			</div>
+			
+			<div id="stepFiveBlock"  class="slds-hide">
+				<div class="slds-form-element">
+					<div id="usePreviousCardBtn" class="slds-hide">
+						<label class="slds-checkbox--toggle slds-grid slds-grid--vertical-align-center">
+							<span class="slds-form-element__label slds-m-bottom--none">Use this credit card: * * * *  * * * *  * * * *  {!v.checkOldCreditCardResult[1]}</span>
+							<input name="checkbox" type="checkbox" onclick="{!c.showCreditCardBlock}" checked="true"/>
+							<span class="slds-checkbox--faux" data-check-on="Yes" data-check-off="No"></span>
+						</label>
+						<div class="slds-m-top--x-small"></div>
+					</div>
+					<div id="FillCreditCardInfo" class="slds-hide">
+						<div class="slds-form-element" id="cardType">
+							<ui:inputSelect aura:id="cardType" label="Card Type" class="slds-input" labelClass="slds-form-element__label">
+								<ui:inputSelectOption text="Mastercard" label="Mastercard" value="true"/>
+								<ui:inputSelectOption text="Visa" label="Visa"/>
+								<ui:inputSelectOption text="Discover" label="Discover"/>
+								<ui:inputSelectOption text="American Express" label="American Express"/>
+								<ui:inputSelectOption text="MC Eurocard" label="MC Eurocard"/>
+								<ui:inputSelectOption text="UK Maestro" label="UK Maestro"/>
+								<ui:inputSelectOption text="JCB Card" label="JCB Card"/>
+							</ui:inputSelect>
+						</div>
+						<div class="slds-m-top--x-small"></div>
+						<div class="slds-form-element" id="cardNumber">
+							<ui:inputText aura:id="cardNumber" label="Card Number" class="slds-input " labelClass="slds-form-element__label" required="true" value="{!v.card[2]}"/>
+						</div>
+						<div class="slds-m-top--x-small"></div>
+						<div class="slds-form-element" id="cardExpirationYear">
+							<ui:inputSelect aura:id="cardExpirationYear" label="Card Expiration Year" class="slds-input" labelClass="slds-form-element__label" change="{!c.yearChange}" value="{!v.experationYearValue}">
+								<aura:iteration items="{!v.experationYears}" var="experationYear">
+									<ui:inputSelectOption text="{!experationYear}" label="{!experationYear}"/>
+								</aura:iteration>
+							</ui:inputSelect>
+						</div>
+						<div class="slds-m-top--x-small"></div>
+						<div class="slds-form-element" id="cardExpirationMonth">
+							<ui:inputSelect aura:id="cardExpirationMonth" label="Card Expiration Month" class="slds-input" labelClass="slds-form-element__label" value="{!v.experationMonthValue}">
+								<aura:iteration items="{!v.experationMonths}" var="experationMonth" indexVar="index">
+									<ui:inputSelectOption text="{!experationMonth}" label="{!experationMonth}" />
+								</aura:iteration>
+							</ui:inputSelect>
+						</div>
+						<div class="slds-m-top--x-small"></div>
+						<div class="slds-form-element" id="cardCCV">
+							<ui:inputText aura:id="cardCCV" label="CCV" class="slds-input" labelClass="slds-form-element__label" required="true"  value="{!v.card[3]}"/>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div id="stepSixBlock"  class="slds-hide">
+				<table class="slds-table slds-table--bordered slds-table--cell-buffer">
+					<thead>
+					<tr class="slds-text-heading--label" style="background-color: #f4f6f9;">
+						<th scope="col">
+							<div class="slds-truncate" title="Information">Information</div>
+						</th>
+						<th scope="col">
+							<div class="slds-truncate" title="Price">Order Name</div>
+						</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr class="slds-text-heading--label ">
+						<td ><div class="slds-truncate" id="orderNumber">Your order number is</div></td>
+						<td ><div class="slds-truncate">
+						   <!-- <a data-refid="objId" href="{!'#/sObject/' + v.orderName[0] + '/view'}" target="_blank" data-recordid="{!v.orderName[0]}" title="{!v.orderName[1]}" >{!v.orderName[1]}</a>-->
+							<a href="{!'/' + v.orderName[0]}" target="_blank" title="{!v.orderName[1]}" >{!v.orderName[1]}</a>
+						</div></td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div id="stepSevenBlock"  class="slds-hide">
+				<div class="slds-form-element">
+					<div class="slds-align--absolute-center">{!v.lastStep}</div>
+				</div>
+			</div>
+
+			<div class="slds-m-top--medium"></div>
+			
+			<div id="btnStepOneBlock" class="slds-grid">
+				<div class="slds-col">
+					<section class="slds-clearfix">
+						<div class="slds-float--right">
+							<button id="btnStep2" class="slds-button slds-button--neutral" onclick="{!c.nextStep2}">
+								Next
+							</button>
+						</div>
+					</section>
+				</div>
+			</div>
+
+			<div id="btnNotificationStepFour" class="slds-hide">
+				<div class="slds-grid">
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--left">
+								<button id="btnStep1" class="slds-button slds-button--neutral" onclick="{!c.backFromFourNotify}">
+									Back
+								</button>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+
+			<div id="btnNotificationStepSix" class="slds-hide">
+				<div class="slds-grid">
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--right">
+								<a aura:id="item" href="{!'/' + v.newAccount.Id}">
+									<button id="btnStep1" class="slds-button slds-button--neutral" onclick="{}">
+										Cancel
+									</button>
+								</a>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+
+			<div id="btnNotoficationBlock" class="slds-hide">
+				<div class="slds-grid">
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--left">
+								<button id="btnStep1" class="slds-button slds-button--neutral" onclick="{!c.backFromNotify}">
+									Back
+								</button>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+
+			<div id="btnStepTwoBlock" class="slds-hide">
+				<div class="slds-grid">
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--left">
+								<button id="btnStep1" class="slds-button slds-button--neutral" onclick="{!c.previousStep1}">
+									Back
+								</button>
+							</div>
+						</section>
+
+					</div>
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--right">
+								<button id="btnStep2" class="slds-button slds-button--neutral" onclick="{!c.nextStep3}">
+									Next
+								</button>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+
+			<div id="btnStepThreeBlock" class="slds-hide">
+				<div class="slds-grid">
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--left">
+								<button id="btnStep1" class="slds-button slds-button--neutral" onclick="{!c.previousStep2}">
+									Back
+								</button>
+							</div>
+						</section>
+					</div>
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--right">
+								<button id="btnStep2" class="slds-button slds-button--neutral" onclick="{!c.nextStep4}">
+									Next
+								</button>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+
+			<div id="btnStepFourBlock" class="slds-hide">
+				<div class="slds-grid">
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--left">
+								<button id="btnStep1" class="slds-button slds-button--neutral" onclick="{!c.previousStep3}">
+									Back
+								</button>
+							</div>
+						</section>
+
+					</div>
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--right">
+								<button id="btnStep2" class="slds-button slds-button--neutral" onclick="{!c.nextStep5}">
+									Next
+								</button>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+
+			<div id="btnStepFiveBlock" class="slds-hide">
+				<div class="slds-grid">
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--left">
+								<button id="btnStep1" class="slds-button slds-button--neutral" onclick="{!c.previousStep4}">
+									Back
+								</button>
+							</div>
+						</section>
+
+					</div>
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--right">
+								<button id="btnStep2" class="slds-button slds-button--neutral" onclick="{!c.nextStep6}">
+									Next
+								</button>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+
+			<div id="btnStepSixBlock" class="slds-hide">
+				<div class="slds-grid">
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--left">
+								<a aura:id="item" href="{!'/' + v.newAccount.Id}">
+									<button id="btnStep1" class="slds-button slds-button--neutral" onclick="{}">
+										Cancel
+									</button>
+								</a>
+							</div>
+						</section>
+					</div>
+					<div class="slds-col">
+						<section class="slds-clearfix">
+							<div class="slds-float--right">
+								<button id="btnStep2" class="slds-button slds-button--neutral" onclick="{!c.nextStep7}">
+									Confirm
+								</button>
+							</div>
+						</section>
+					</div>
+				</div>
+				</div>
+				<div id="btnStepSevenBlock" class="slds-hide">
+					<div class="slds-grid">
+						<div class="slds-col">
+							<section class="slds-clearfix">
+								<div class="slds-float--right">
+									<a aura:id="item" href="{!'/' + v.newAccount.Id}">
+										<button id="btnStep2" class="slds-button slds-button--neutral" onclick="{}">
+											Finish
+										</button>
+									</a>
+								</div>
+							</section>
+						</div>
+					</div>
+					<div class="slds-hide" id="upSells" style="width: 30rem;">
+						<article class="slds-tile">
+							<h3 class="slds-tile__title slds-truncate">
+								<a>{!v.upsells[0].name}</a>
+							</h3>
+							<div class="slds-tile__detail">
+								<dl class="slds-list_horizontal slds-wrap">
+									<dt class="slds-item_label slds-text-color_weak slds-truncate" title="First Label">Bad old price:</dt>
+									<dd class="slds-item_detail slds-truncate" title="Description for first label">{!v.upsells[0].price}</dd>
+									<dt class="slds-item_label slds-text-color_weak slds-truncate" title="Second Label">Awesome new price:</dt>
+									<dd class="slds-item_detail slds-truncate" title="Description for second label">{!v.upsells[0].oldPrice}</dd>
+								</dl>
+							</div>
+							<div class="slds-m-top--medium"></div>
+							<div class="slds-button-group" role="group">
+								<button class="slds-button slds-button_neutral" onclick="{!c.upBuy}">Buy now!</button>
+								<button class="slds-button slds-button_neutral" onclick="{!c.next}">Don't intresting</button>
+							  </div>
+						</article>
+					</div>
+					<div class="slds-hide" id="downSells" style="width: 30rem;">
+						<article class="slds-tile">
+							<h3 class="slds-tile__title slds-truncate">
+								<a>{!v.downsells[0].name}</a>
+							</h3>
+							<div class="slds-tile__detail">
+								<dl class="slds-list_horizontal slds-wrap">
+									<dt class="slds-item_label slds-text-color_weak slds-truncate" title="First Label">Bad old price:</dt>
+									<dd class="slds-item_detail slds-truncate" title="Description for first label">{!v.downsells[0].price}</dd>
+									<dt class="slds-item_label slds-text-color_weak slds-truncate" title="Second Label">Awesome new price:</dt>
+									<dd class="slds-item_detail slds-truncate" title="Description for second label">{!v.downsells[0].oldPrice}</dd>
+								</dl>
+							</div>
+							<div class="slds-m-top--medium"></div>
+							<div class="slds-button-group" role="group">
+								<button class="slds-button slds-button_neutral" onclick="{!c.downBuy}">Buy now!</button>
+								<button class="slds-button slds-button_neutral" onclick="{!c.nextDown}">Don't intresting</button>
+							  </div>
+						</article>
+					</div>
+
+				</div>
+			</fieldset>
+		</div> 
+	</div>
+	
+	<!-- SPINNER-->
+	<aura:if isTrue="{!v.showSpinner}">
+		<div class="slds-spinner_container slds-show slds-is-relative" aura:id="imgSpinner" style="top: 0px; left: 0px; position: fixed;">
+			<div class="slds-spinner--brand slds-spinner slds-spinner--medium" role="alert" style="top: 200px; left: 50%; position: fixed;">
+				<span class="slds-assistive-text">Loading</span>
+				<div class="slds-spinner__dot-a"></div>
+				<div class="slds-spinner__dot-b"></div>
+			</div>
+		</div>
+	</aura:if>
+	
+</aura:component>

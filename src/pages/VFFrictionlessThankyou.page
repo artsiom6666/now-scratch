@@ -1,0 +1,8 @@
+<apex:page sidebar="false" action="{!setThanksMessage}" showHeader="false" title="Thanyou" >
+    <apex:pageBlock title="Thanks for your Order">
+        <apex:pageMessages ></apex:pageMessages>
+        <div style="width:50%;margin:50px auto;">
+            <h2>Your order has been successfully placed.</h2>
+        </div>
+    </apex:pageBlock>
+</apex:page>

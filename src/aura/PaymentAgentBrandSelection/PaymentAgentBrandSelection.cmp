@@ -1,0 +1,299 @@
+<aura:component controller="TouchCRAuraSettingsController" implements="force:appHostable,flexipage:availableForAllPageTypes" access="global"  >
+
+    <!-- CUSTOM SETTINGS FIELDS -->  
+    <aura:attribute name="settings" type="List"/>
+    <aura:attribute name="paymentAgent2Save" type="Map"/>
+    <aura:attribute name="paymentOptions" type="List"/>
+    <aura:attribute name="profOptions" type="List"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!--LOCAL FIELDS-->
+    <aura:attribute name="showPopup" type="Boolean" default="false" />
+
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+    <aura:attribute name="showDeleteMessage" type="Boolean" default="false" />
+    <aura:attribute name="textMessage" type="String"/>
+    <aura:attribute name="keyDeleteRecord" type="String"/>
+    <aura:attribute name="showErrorMessage" type="Boolean" default="false" />
+    <aura:attribute name="showSuccessMessage" type="Boolean" default="false" />
+
+
+    <!---->
+    <div class="slds-tabs--scoped__content slds-show" role="tabpanel">
+        <div class="container slds-p-top--medium" style="padding-top: 0px !important;">
+            <div class="container" style="width: 100%; margin: auto; padding-top: 0px !important;">
+                <div class="one_three">
+                </div>
+                <form class="slds-form--stacked">
+                    <div class="slds-card__body">
+                        <div class="slds-scrollable--x site-example--content" data-form-factor="desktop">
+                            <div style="display: table; width: 100%;" class="slds-table slds-table--bordered slds-table--cell-buffer slds-table--col-bordered">
+                                <div style="display: table-row;">
+                                    <div style="display: table-cell;">
+                                        <div class="slds-theme--shade slds-text-align--center" style="padding: 6px;">
+                                            <div class="slds-truncate slds-text-title--caps" title="Brands">Brands</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: table-cell;">
+                                        <div class="slds-theme--shade slds-text-align--center" style="padding: 6px;">
+                                            <div class="slds-truncate slds-text-title--caps" title="Status">Status</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: table-cell;">
+                                        <div class="slds-theme--shade slds-text-align--center" style="padding: 6px;">
+                                            <div class="slds-truncate slds-text-title--caps" title="Profile">Profile</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: table-cell;">
+                                        <div class="slds-theme--shade slds-text-align--center" style="padding: 6px;">
+                                            <div class="slds-truncate slds-text-title--caps" title="Payment Agents">Payment Agents</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: table-cell;">
+                                        <div class="slds-theme--shade slds-text-align--center" style="padding: 6px;">
+                                            <div class="slds-truncate slds-text-title--caps" title="Google Analytics">Google Analytics</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: table-cell;">
+                                        <div class="slds-theme--shade slds-text-align--center" style="padding: 6px;">
+                                            <div class="slds-truncate slds-text-title--caps" title="Action">Action</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <aura:if isTrue="{!v.settings.length == 0}">
+                                    <div style="display: table-row;">
+                                        <div style="display: table-cell;">
+                                            <div class="slds-theme--shade slds-text-align--center" style="padding: 6px; background-color: white">
+                                                <div class="slds-truncate" title="Name">
+                                                    No records to display.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </aura:if>
+
+                                <aura:iteration items="{!v.settings}" var="paymentAgentSetting" indexVar="key">
+                                    <div style="display: table-row;">
+                                        <div style="display: table-cell;">
+                                            <div class="slds-theme--shade slds-text-align--center" style="padding: 6px; background-color: white">
+                                                <div class="slds-truncate" title="Brand Name">
+                                                        {!paymentAgentSetting.name}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="display: table-cell;">
+                                            <div class="slds-theme--shade slds-text-align--center" style="padding: 6px; background-color: white">
+                                                <div class="slds-truncate" title="Type">
+                                                    <div class="slds-truncate" title="Status">
+                                                        <ui:outputCheckbox value="{!paymentAgentSetting.status}"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="display: table-cell;">
+                                            <div class="slds-theme--shade slds-text-align--center" style="padding: 6px; background-color: white">
+                                                <div class="slds-truncate" title="Profile">
+                                                        {!paymentAgentSetting.commValueLabel}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="display: table-cell;">
+                                            <div class="slds-theme--shade slds-text-align--center" style="padding: 6px; background-color: white">
+                                                <div class="slds-truncate" title="Payment Agent">
+                                                    {!paymentAgentSetting.gatewayIdLabel}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="display: table-cell;">
+                                            <div class="slds-theme--shade slds-text-align--center" style="padding: 6px; background-color: white">
+                                                <div class="slds-truncate" title="Google Analytics">
+                                                        {!paymentAgentSetting.googleValue}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="display: table-cell;">
+                                            <div class="slds-theme--shade slds-text-align--center" style="background-color: white; text-align: -webkit-auto; padding: 0px 10px;">
+                                                <div class="slds-dropdown-trigger"
+                                                     aura:id="accDropDown"
+                                                     aria-expanded="true" style="position:absolute; padding: 3px 3.2%">
+
+                                                    <a class="rowActionsPlaceHolder" aria-haspopup="true" title="" href="javascript:void(0);">
+                                                        <button class="slds-button slds-button--icon-border-filled slds-button--icon-x-small" aria-haspopup="true" title="Show More">
+                                                            <lightning:icon iconName="utility:down" size="x-small" class="color-icon"/>
+                                                            <span class="slds-assistive-text">Show More</span>
+                                                        </button>
+                                                        <div class="slds-dropdown slds-dropdown--right">
+                                                            <ul class="dropdown__list" role="menu" aria-labelledby="editdelete">
+                                                                <li class="slds-dropdown__item">
+                                                                    <a href="javascript:void(0);"
+                                                                       role="menuitem"
+                                                                       data-record="{!key}"
+                                                                       onclick="{!c.editPaSetting}">
+                                                                        <p class="slds-truncate">Edit</p>
+                                                                    </a>
+                                                                </li>
+
+                                                            </ul>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </aura:iteration>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--POPUPS-->
+    <!-- SPINNER-->
+    <aura:if isTrue="{!v.showSpinner}">
+        <div class="slds-spinner_container slds-show" aura:id="imgSpinner">
+            <div class="slds-spinner--brand slds-spinner slds-spinner--medium" role="alert" style="top: 200px; left: 50%;">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+
+
+    <!--EDIT POPUP-->
+    <article>
+        <aura:if isTrue="{!v.showPopup}">
+            <div aura:id="modal" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 50%; min-width: 457px !important;">
+                    <div class="slds-modal__header">
+                        <button class="slds-button slds-modal__close slds-button--icon-inverse" title="Close" onclick="{!c.closeModal}">
+                            <lightning:icon iconName="utility:close" size="medium" class="color-icon-alert"/>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                            <h2 id="header43" class="slds-text-heading--medium">Edit {!v.paymentAgent2Save.name} Brand Assignments</h2>
+                    </div>
+
+                    <div class="slds-modal__content slds-p-around--medium" style=" background: white;">
+                        <form class="slds-form--stacked">
+                            <div style="display: table; width: 100%;" class="slds-table slds-table--cell-buffer">
+                                <div style="display: table-row;">
+                                    <div style="display: table-cell; width: 43%;">
+                                        <div class="field1" style="min-width: 130px; width: 95%; padding-bottom: 25px;">
+                                            <ui:inputSelect value="{!v.paymentAgent2Save.commValue}" label="Profile" class="dynamic select-style" aura:id="InputType" >
+                                                <aura:iteration items="{!v.profOptions}" var="profOption">
+                                                    <ui:inputSelectOption text="{!profOption.key}" label="{!profOption.value}"/>
+                                                </aura:iteration>
+                                            </ui:inputSelect>
+                                        </div>
+                                    </div>
+                                    <div style="display: table-cell; width: 43%;">
+                                        <div class="field1" style="min-width: 130px; width: 95%; padding-bottom: 25px;">
+                                            <ui:inputSelect value="{!v.paymentAgent2Save.gatewayId}" label="Payment Agent" class="dynamic select-style" aura:id="InputType" >
+                                                <aura:iteration items="{!v.paymentOptions}" var="paymentOption">
+                                                    <ui:inputSelectOption text="{!paymentOption.key}" label="{!paymentOption.value}"/>
+                                                </aura:iteration>
+                                            </ui:inputSelect>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: table-row;">
+                                    <div style="display: table-cell; width: 43%;">
+                                        <div class="field1" style="min-width: 130px; width: 95%; padding-bottom: 10px;">
+                                            <ui:inputText aura:id="GoogleAnalytics" label="Google Analytics" class="field" value="{!v.paymentAgent2Save.googleValue}" />
+                                        </div>
+                                    </div>
+                                    <div style="display: table-cell; width: 43%;">
+                                        <div class="slds-form-element checkboxAbonnLeft" style="direction: ltr; margin: 0 30%;">
+                                            <label class="slds-checkbox--toggle slds-grid">
+                                                <span class="slds-form-element__label slds-m-bottom--none">Status</span>
+                                                <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" checked="{!v.paymentAgent2Save.status}" onclick="{!c.changeCkeckbox}" id="status"/>
+                                                <span id="toggle-desc" class="slds-checkbox--faux_container" aria-live="assertive">
+                                                    <span class="slds-checkbox--faux" style="{!v.paymentAgent2Save.status ? 'background-color: rgb(0, 112, 210);' : 'background-color: rgb(159, 170, 181);'}"></span>
+                                                    <span class="slds-checkbox--on">Active</span>
+                                                    <span class="slds-checkbox--off">Disabled</span>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="slds-modal__footer">
+                        <button class="slds-button slds-button--brand" onclick="{!c.saveSetting}">Save</button>
+                        <button class="slds-button slds-button--neutral" onclick="{!c.closeModal}">Close</button>
+                    </div>
+                </div>
+            </div>
+            <div aura:id="backdropModal" class="slds-backdrop slds-backdrop--open"></div>
+        </aura:if>
+    </article>
+
+    <!--ERROR MESSAGE-->
+    <aura:if isTrue="{!v.showErrorMessage}">
+        <div class="slds-notify_container" style="top: 130px;">
+            <div class="slds-notify slds-notify--toast slds-theme--error" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+                    <lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-notify__content slds-grid">
+                    <lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+                    <div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small">{!v.textMessage}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+
+    <!--SUCCESS MESSAGE-->
+    <aura:if isTrue="{!v.showSuccessMessage}">
+        <div class="slds-notify_container" style="top: 130px;">
+            <div class="slds-notify slds-notify--toast slds-theme--success" role="alert">
+                <span class="slds-assistive-text">Success</span>
+                <button class="slds-button slds-notify__close slds-button--icon-inverse" onclick="{!c.closeMessage}">
+                    <lightning:icon iconName="utility:close" size="small" class="color-icon-alert"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-notify__content slds-grid">
+                    <lightning:icon iconName="utility:notification" size="small" class="color-icon-alert"/>
+                    <div class="slds-col slds-align-middle" style="padding-left: 10px;">
+                        <h2 class="slds-text-heading--small ">{!v.textMessage}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+
+    <!--DELETE MESSAGE-->
+    <aura:if isTrue="{!v.showDeleteMessage}">
+        <div aura:id="modal" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <button class="slds-button slds-modal__close slds-button--icon-inverse" onclick="{!c.closeModal}">
+                        <lightning:icon iconName="utility:close" size="medium" class="white-icon"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="header43" class="slds-text-heading--medium">Delete Record</h2>
+                </div>
+                <div class="slds-modal__content slds-p-around--medium">
+                    <div>
+                        <p>Are you sure you want to delete the record?</p>
+                    </div>
+                </div>
+                <div class="slds-modal__footer">
+                    <button class="slds-button slds-button--neutral" onclick="{!c.closeModal}">Cancel</button>
+                    <button class="slds-button slds-button--brand" onclick="{!c.deleteSetting}">Delete</button>
+                </div>
+            </div>
+        </div>
+        <div aura:id="backdropModal" class="slds-backdrop slds-fade-in-open"></div>
+    </aura:if>
+
+</aura:component>

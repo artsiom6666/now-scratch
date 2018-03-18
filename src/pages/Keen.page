@@ -1,0 +1,53 @@
+<apex:page showHeader="false" standardStylesheets="false" sidebar="false" docType="html-5.0">
+   
+    <head>
+        <link href="https://d26b395fwzu5fz.cloudfront.net/4.3.0/keen.min.css" rel="stylesheet" />
+        <script src="https://d26b395fwzu5fz.cloudfront.net/4.3.0/keen.min.js"></script>
+    </head>
+        <body>
+         
+            <div id="keen-chart"/>
+
+        <script>
+                var client = new Keen({
+                    projectId: "5a7012b4c9e77c00011f792a",
+                    readKey: "3EAED4A90D0AA2693C0D5C1C05019C0579DD032262E637D0B3AB96C34A07469061B9B31E5C2C24308524AD2B7B547A57A1D4E0842CF3CD81520DFBB5A3E0E9AE1D234F7D9C8CF6E851F5F5B36919FEE19BEA5C784440C6AEFA61B5D650BC3253",
+                    writeKey: "74B4A0146207EA53AFE1F9127A099F00E21A378B16EE0A474EAFF05554CDBF5FC82E9EDF25C3E1FC040AD5460EC8695F86AEC6B8AB35A2782EF573CC1562F4276CEA41AAB14CA2E2C42CF38C3207E5C8EB582F76FD0AC46B56129C928C98EF0E"
+                });
+        
+            var chart = new Keen.Dataviz()
+            .el('#keen-chart')
+            .type("bar")
+            .height(300)
+            .prepare();
+            console.log(chart);
+            // Use keen-analysis.js to run a query
+            // and pass the result into your chart:
+            
+            client
+            .query('count', {
+                event_collection: 'purchases',
+                filters: [
+                    {
+                        property_name: 'affId',
+                        operator: 'eq',
+                        property_value: '0014100001Io0hCAAR'
+                    }
+                ],
+                timeframe: "this_14_days"
+            })
+            .then(function(res) {
+                // Handle the result
+                console.log(res);
+                chart
+                .data(res)
+                .render();
+            })
+            .catch(function(err) {
+                // Handle the error
+                chart
+                .message(err.message);
+            });
+        </script>
+    </body>
+</apex:page>

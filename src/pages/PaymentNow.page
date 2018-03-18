@@ -1,0 +1,12 @@
+<apex:page showHeader="false" sidebar="false" standardController="Payment_Attempt__c" extensions="PaymentNowController">
+	<body id="pageBody">
+		<apex:form >
+			<apex:actionFunction name="payNowAF" action="{!payNow}"/>
+			<script type="text/javascript">
+				window.onload = function() {
+					payNowAF();
+				}
+			</script>
+		</apex:form>
+	</body>
+</apex:page>

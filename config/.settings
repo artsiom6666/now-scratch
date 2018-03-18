@@ -1,0 +1,18 @@
+{
+    "projectName": "MACNAB-NOW",
+    "username": "test-qxymvhjhdvo6@example.com",
+    "id": "35a626f0-2a03-11e8-927b-ddee7c8d2f15",
+    "namespace": "TouchCRBase",
+    "orgType": "developer",
+    "loginUrl": "https://login.salesforce.com/",
+    "instanceUrl": "https://site-data-5013-dev-ed.cs92.my.salesforce.com",
+    "workspace": "/home/oem/PROJECTS",
+    "subscription": [
+        "ApexClass",
+        "ApexComponent",
+        "ApexPage",
+        "ApexTrigger",
+        "AuraDefinitionBundle",
+        "StaticResource"
+    ]
+}

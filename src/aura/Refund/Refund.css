@@ -1,0 +1,11 @@
+.THIS {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.THIS .color-icon-alert-red svg{
+	fill: #c23934;
+}
+.THIS .color-icon-alert-green svg{
+	fill: #04844b;
+}

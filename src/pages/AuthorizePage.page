@@ -1,0 +1,79 @@
+<apex:page standardController="Order__c" extensions="AuthorizeController">
+	<apex:form id="Form">
+		<apex:sectionHeader title="{!$ObjectType.Order__c.Label}" subtitle="{!$ObjectType.Order__c.Label}" />
+		<apex:pageMessages />
+
+		<apex:pageBlock >
+			<apex:pageBlockSection columns="1">
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Card Type" for="Card_Type"/>
+					<apex:selectList value="{!cardType}" size="1" id="Card_Type" style="width: 170px;">
+					<apex:selectOption itemValue="Mastercard" itemLabel="Mastercard"/>
+					<apex:selectOption itemValue="Visa" itemLabel="Visa"/>
+					<apex:selectOption itemValue="Discover" itemLabel="Discover"/>
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Card Number" for="Card_Number"/>
+					<apex:outputpanel styleClass="requiredInput" layout="block" id="Card_Number">
+						<div class="requiredBlock"></div>
+						<apex:inputText value="{!cardNumber}"/>
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Card Expiration Year" for="Card_Expiration_Year"/>
+					<apex:selectList value="{!cardExpirationYear}" size="1" id="Card_Expiration_Year" style="width: 170px;">
+						<apex:selectOption itemValue="2017" itemLabel="2017"/>
+						<apex:selectOption itemValue="2018" itemLabel="2018"/>
+						<apex:selectOption itemValue="2019" itemLabel="2019"/>
+						<apex:selectOption itemValue="2020" itemLabel="2020"/>
+						<apex:selectOption itemValue="2021" itemLabel="2021"/>
+						<apex:selectOption itemValue="2022" itemLabel="2022"/>
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Card Expiration Month" for="Card_Expiration_Month"/>
+					<apex:selectList value="{!cardExpirationMonth}" size="1" id="Card_Expiration_Month" style="width: 170px;">
+						<apex:selectOption itemValue="01" itemLabel="January"/>
+						<apex:selectOption itemValue="02" itemLabel="February"/>
+						<apex:selectOption itemValue="03" itemLabel="March"/>
+						<apex:selectOption itemValue="04" itemLabel="April"/>
+						<apex:selectOption itemValue="05" itemLabel="May"/>
+						<apex:selectOption itemValue="06" itemLabel="June"/>
+						<apex:selectOption itemValue="07" itemLabel="July"/>
+						<apex:selectOption itemValue="08" itemLabel="August"/>
+						<apex:selectOption itemValue="09" itemLabel="September"/>
+						<apex:selectOption itemValue="10" itemLabel="October"/>
+						<apex:selectOption itemValue="11" itemLabel="November"/>
+						<apex:selectOption itemValue="12" itemLabel="December"/>
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="CCV" for="CCV"/>
+					<apex:outputpanel styleClass="requiredInput" layout="block" id="CCV">
+						<div class="requiredBlock"></div>
+						<apex:inputText value="{!ccv}" />
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Amount to Charge" for="Amount"/>
+					<apex:outputpanel styleClass="requiredInput" layout="block" id="Amount">
+						<div class="requiredBlock"></div>
+						<apex:inputText value="{!order.Amount_To_Charge__c}" />
+					</apex:outputpanel>
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Authorize" action="{!authorizeOrderNow}"/>
+				<apex:commandButton value="Cancel" action="{!cancel}" />
+			</apex:pageBlockButtons>
+
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

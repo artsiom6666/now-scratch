@@ -1,0 +1,131 @@
+<apex:page controller="TouchCRMultiConfigurationController" title="TouchCRConnections" tabStyle="TouchCRConnection__c" >
+
+	<apex:includeScript value="{!URLFOR($Resource.validation,'validation/jquery-1.8.2.min.js')}"/>
+
+	<style type="text/css">
+		.bPageBlock .detailList .labelCol {
+			width: 30%;
+			vertical-align: middle;
+		}
+	</style>
+
+	<apex:form >
+
+		<apex:actionStatus id="spinner">
+			<apex:facet name="start">
+				<div class="statusBox-layer">
+					<div class="statusBox-msgBox"></div>
+					<div class="statusBox-msg">
+						<img src="/img/loading.gif" />&nbsp;&nbsp;Please Wait...
+					</div>
+				</div>
+			</apex:facet>
+		</apex:actionStatus>
+
+		<apex:sectionHeader title="{!$ObjectType.TouchCRConnection__c.Label}"/>
+		<apex:pageMessages />
+
+		<apex:pageBlock title="TouchCRConnections">
+
+			<apex:pageBlockSection collapsible="false" columns="1" rendered="{!panelTable}">
+					<apex:pageBlockTable value="{!connect}" var="wrap" rendered="{!connect.size > 0}">
+						<apex:column headerValue="Action" style="width: 15%;">
+							<apex:commandLink action="{!deletedSettings}" onclick="return confirm('Are you sure?');"> Del
+								<apex:param name="SelectedId" value="{!wrap.Id}" assignTo="{!namePersonSetting}"/>
+							</apex:commandLink>
+							<apex:outputText value=" | " />
+							<apex:commandLink action="{!editSetting}" > Edit
+								<apex:param name="SelectedName" value="{!wrap.Id}" assignTo="{!namePersonSetting}"/>
+								<apex:param name="SelectedFeature" value="{!wrap.Feature__c}" assignTo="{!selectedFeature}"/>
+							</apex:commandLink>
+						</apex:column>
+						<apex:column headerValue="Name">
+							<div >
+								<apex:outputText value="{!wrap.Name}" />
+							</div>
+						</apex:column>
+						<apex:column headerValue="Brand">
+							<div >
+								<apex:outputText value="{!wrap.Brand__c}" />
+							</div>
+						</apex:column>
+						<apex:column headerValue="Feature">
+							<div >
+								<apex:outputText value="{!wrap.Feature__c}" />
+							</div>
+						</apex:column>
+						<apex:column headerValue="Active">
+							<div >
+								<apex:inputCheckbox value="{!wrap.isActive__c}" disabled="true"/>
+							</div>
+						</apex:column>
+						<apex:column headerValue="Order">	
+							<div >
+								<apex:outputText value="{!wrap.Order__c}" />
+							</div>
+						</apex:column>
+					</apex:pageBlockTable>
+
+					<apex:outputPanel rendered="{!connect.size == 0}">
+						No records to display
+					</apex:outputPanel>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection title="Create" collapsible="false" columns="1" rendered="{!panelCreateNew}">
+					<apex:pageBlockSectionItem >
+						Name Person Setting:
+						<apex:outputpanel styleClass="requiredInput" layout="block">
+							<div class="requiredBlock"></div>
+							<apex:inputText value="{!newNameForSetting}"/>
+						</apex:outputpanel>
+					</apex:pageBlockSectionItem>
+
+					 <apex:pageBlockSectionItem >
+						<apex:outputLabel value="Brand:" for="brand"/>
+						<apex:selectList value="{!selectedBrand}" size="1" id="brand" >
+							<apex:selectOptions value="{!valueBrandList}"/>
+						</apex:selectList>
+					</apex:pageBlockSectionItem>
+
+					<apex:pageBlockSectionItem >
+						<apex:outputLabel value="Feature:" for="feature"/>
+						<apex:selectList value="{!selectedFeature}" size="1" id="feature" >
+							<apex:selectOptions value="{!valueFeatureList}"/>
+						</apex:selectList>
+					</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection columns="1" collapsible="false" rendered="{!panelEdit}">
+					<apex:pageBlockSection title="API Credential" columns="1" collapsible="false" >
+						<apex:repeat value="{!settingsStringWr}" var="setting">
+							<apex:inputText value="{!setting.valueS}" label="{!setting.label}"/>
+						</apex:repeat>
+						<apex:repeat value="{!settingsSelectListWr}" var="setting">
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="{!setting.label}" for="NamedCredential"/>
+								<apex:selectList value="{!setting.valueS}" size="1" id="NamedCredential">
+									<apex:selectOptions value="{!namedCredentials}"/>
+								</apex:selectList>
+							</apex:pageBlockSectionItem>
+						</apex:repeat>
+						<apex:repeat value="{!settingsBooleanWr}" var="setting">
+							<apex:inputCheckbox value="{!setting.valueB}" label="{!setting.label}"/>
+						</apex:repeat>
+					</apex:pageBlockSection>
+					<apex:inputCheckbox value="{!currentConnection.isActive__c}" label="Active"/>
+					<apex:inputField value="{!currentConnection.Order__c}" label="Order"/>
+					<apex:selectList value="{!currentConnection.Brand__c}" size="1" id="brand" >
+						<apex:selectOptions value="{!valueBrandList}"/>
+					</apex:selectList>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockButtons >
+				<apex:commandButton action="{!addNew}" value="New" status="spinner" rendered="{!panelTable}"/>
+				<apex:commandButton action="{!createNewNameSetting}" value="Create" status="spinner" rendered="{!panelCreateNew}"/>
+				<apex:commandButton action="{!saveSettings}" value="Save" status="spinner" rendered="{!panelEdit}"/>
+				<apex:commandButton action="{!cancelSettings}" value="Cancel" status="spinner" rendered="{!panelEdit || !panelTable}"/>
+			</apex:pageBlockButtons>
+		</apex:pageBlock>
+
+	</apex:form>
+</apex:page>

@@ -1,0 +1,94 @@
+.THIS .slds-tabs--scoped__link {
+    white-space: normal;
+    height: 100%;
+}
+
+.THIS.slds-button .color-icon svg{
+    fill: black;
+}
+
+.THIS.slds-modal .white-icon svg{
+    fill: white;
+}
+.THIS .color-icon-alert svg{
+    fill: white;
+}
+/* Abonn Settings */
+.THIS .checkboxAbonnLeft {
+    width: 300px;
+    direction: rtl;
+    margin-left: 10px;
+	float: left;
+}
+.THIS .checkboxAbonnRight {
+    width: 300px;
+    direction: rtl;
+    margin: 0 0 0 10px;
+    padding-left: 20px;
+    margin-left: 30px;
+	float: left;
+}
+.THIS .fieldAbonnLeft {
+    width: 300px;
+	margin-left: 10px;
+	float: left;
+}
+.THIS .fieldAbonnRight {
+    width: 300px;
+    margin: 0 0 0 30px;
+	float: left;
+}
+.THIS .outputfield {
+	float: right;
+    padding-bottom: 17px;
+}
+.THIS .outputText {
+    float: left;
+    padding-bottom: 11px;
+}
+.THIS .outputTextRight {
+    float: right;
+}
+.THIS .outputTextLage {
+    float: left;
+}
+
+
+.THIS .field1 {
+	float: left;
+}
+
+.THIS.container {
+	padding-top: 30px;
+}
+
+.THIS.container:after { content: ""; display: block; clear: both; visibility: hidden; line-height: 0; height: 0; margin: 0; padding: 0; }
+
+.THIS .two_three {
+	padding-top: 20px;
+
+}
+
+.THIS .btnInvoice {
+	text-align: center;
+}
+.THIS .button {
+	background-color: #0070D2;
+	color: white;
+	height: 37px;
+}
+.THIS .button:hover {
+	background-color: #E5E5E5;
+	color: #0070D2;
+}
+.THIS.line {
+	margin-top: 30px;
+	border-bottom: 4px solid black;
+}
+
+.THIS .white-icon svg{
+    fill: rgb(224, 229, 238);
+}
+.THIS .white-icon svg:hover{
+    fill: rgb(0, 112, 210);
+}

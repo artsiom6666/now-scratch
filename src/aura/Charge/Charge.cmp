@@ -1,0 +1,117 @@
+<aura:component implements="force:appHostable,force:hasRecordId,force:lightningQuickActionWithoutHeader" controller="ChargeController">
+	
+	<aura:attribute name="showSpinner" type="Boolean" default="false" />
+	<aura:attribute name="arePaymentOptionsActive" type="Boolean" />
+	<aura:attribute name="isUsePaymentOptions" type="Boolean" default="false"/>
+	<aura:attribute name="isCharge" type="Boolean" default="false"/>
+	<aura:attribute name="isValid" type="Boolean" default="true"/>
+	<aura:attribute name="showChargeButton" type="Boolean" default="true"/>
+
+	<aura:attribute name="message" type="String"/>
+	<aura:attribute name="amountOfCharge" type="String" />
+	<aura:attribute name="amountToChargeInOrder" type="String" />
+	<aura:attribute name="transactionId" type="String"/>
+
+	<aura:attribute name="chosenPaymentOptionId" type="String" />
+	<aura:attribute name="chargeData" type="String" />
+	<aura:attribute name="cards" type="Object" />
+
+	<aura:attribute name="cardNumber" type="String" />
+	<aura:attribute name="ccv" type="String" />
+
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+	<div style="display: inline;">
+		<fieldset class="slds-box slds-theme--default slds-container--small" style="min-width: 100%; height: 510px;">
+			<aura:if isTrue="{!v.isCharge == false}">
+				<div id="choiceOfPayment" class="slds-show">
+					<label class="slds-checkbox--toggle slds-grid slds-grid--vertical-align-center">
+						<span class="slds-form-element__label slds-m-bottom--none"> Use Payment Options</span>
+						<input name="checkbox" type="checkbox" onclick="{!c.clickUsePaymentOptions}" checked="{!v.isUsePaymentOptions}" disabled="{!v.showSpinner}"/>
+						<span class="slds-checkbox--faux" data-check-on="Yes" data-check-off="No"></span>
+					</label>
+					<div class="slds-m-top--x-small"></div>
+				</div>
+
+				<aura:if isTrue="{!v.arePaymentOptionsActive == true}">
+					<aura:if isTrue="{!v.isUsePaymentOptions == true}">
+						<aura:iteration indexVar="ind" items="{!v.cards}" var="field">
+							<div iaura:id="paymentOptions" class="slds-show">
+								<label class="slds-checkbox--toggle slds-grid slds-grid--vertical-align-center">
+									<span class="slds-form-element__label slds-m-bottom--none">Use this credit card: * * * *   * * * *   * * * *  {!field.last4}</span>
+									<input name="checkbox" type="checkbox" onclick="{!c.clickCard}" checked="{!field.isCheck}" data-key="{!field.paymentOptionId}" disabled="{!v.showSpinner}"/>
+									<span class="slds-checkbox--faux" data-check-on="Yes" data-check-off="No"></span>
+								</label>
+								<div class="slds-m-top--x-small"></div>
+							</div>
+						</aura:iteration>
+					</aura:if>
+					<aura:set attribute="else">
+						<aura:if isTrue="{!v.isUsePaymentOptions == true}">
+							<ui:outputText value="Active Payment Options were not found"/>
+						</aura:if>
+					</aura:set> 
+				</aura:if>
+			
+				<div id="stepOneBlock" class="slds-show">
+					<div class="slds-form-element">
+						<aura:if isTrue="{!v.isUsePaymentOptions == false}">
+							<ui:inputSelect aura:id="typeCardInput" label="Card Type" class="slds-input" labelClass="slds-form-element__label" required="true" disabled="{!v.showSpinner}"/>
+							<ui:inputText aura:id="cardInput" label="Card Number" class="slds-input" labelClass="slds-form-element__label" size="16" required="true" value="{!v.cardNumber}" disabled="{!v.showSpinner}"/>
+							<ui:inputSelect aura:id="yearInput" label="Card Expiration Year" class="dynamic" labelClass="slds-form-element__label" required="true" disabled="{!v.showSpinner}"/>
+							<ui:inputSelect aura:id="monthInput" label="Card Expiration Month" class="slds-input" labelClass="slds-form-element__label" required="true" disabled="{!v.showSpinner}"/>
+							<ui:inputText aura:id="ccvInput" label="CCV" class="slds-input" labelClass="slds-form-element__label" size="3" required="true" value="{!v.ccv}" disabled="{!v.showSpinner}"/>
+						</aura:if>
+						<aura:if isTrue="{!v.isValid == false}">
+							<div style="padding-top: 6px; color: #c23934;">
+								<ui:outputText value="{!v.message}"/>
+							</div>
+						</aura:if>
+						<ui:inputNumber aura:id="amountInput" label="Amount to Charge" class="slds-input" labelClass="slds-form-element__label" required="true" value="{!v.amountOfCharge}" />
+					</div>
+				</div><br />
+				
+				
+				<!-- SPINNER-->
+				<aura:if isTrue="{!v.showSpinner}">
+					<div class="slds-spinner_container slds-show slds-is-relative" aura:id="imgSpinner" style="top: 17%; height: 560px; left: 0px; position: fixed;">
+						<div class="slds-spinner--brand slds-spinner slds-spinner--medium"
+						 role="alert" style="top: 50%; left: 50%; position: fixed;">
+							<span class="slds-assistive-text">Loading</span>
+							<div class="slds-spinner__dot-a"></div>
+							<div class="slds-spinner__dot-b"></div>
+						</div>
+					</div>
+				</aura:if>
+
+				<legend id="editContactDetails" class="slds-text-heading--small slds-p-vertical--medium">Create Charge</legend>
+
+			</aura:if>
+			<aura:if isTrue="{!v.isCharge == true}">
+				<div style="padding-top: 30px; padding-left:20px">
+					<ui:outputText value="{!v.message}"/>
+				</div>
+			</aura:if>
+		</fieldset>
+	
+
+		<div id="btnStepOneBlock" class="slds-grid" style="padding-top: 10px;">
+			<div class="slds-col">
+				<section class="slds-clearfix">
+					<div class="slds-float--right">
+						<aura:if isTrue="{!v.showChargeButton == true}">
+							<button class="slds-button slds-button_neutral" disabled="{!v.showSpinner}" onclick="{!c.chargeOrder}">Charge</button>
+						</aura:if>
+						<aura:if isTrue="{!v.isCharge == true}">
+							<button class="slds-button slds-button_neutral" disabled="{!v.showSpinner}" onclick="{!c.closeClick}">Close</button>
+							<aura:set attribute="else">
+								<button class="slds-button slds-button_neutral" disabled="{!v.showSpinner}" onclick="{!c.cancelClick}">Cancel</button>
+							</aura:set> 
+						</aura:if>
+					</div>
+				</section>
+			</div>
+		</div>
+	</div>
+
+</aura:component>
